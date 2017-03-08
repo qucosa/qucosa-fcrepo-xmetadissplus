@@ -1,6 +1,6 @@
 # Qucosa Fedora XMetaDissPlus Dissemination
 
-A web service for amending PPN identifiers on Qucosa objects MODS datastreams which are stored in Fedora Commons.
+A web service disseminating xMetaDissPlus documents based on METS format disseminations.
 
 ## Configuration
 
