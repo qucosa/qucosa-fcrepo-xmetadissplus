@@ -14,19 +14,81 @@
   ~ limitations under the License.
   -->
 
-<xsl:stylesheet version="1.0"
-                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-                xmlns:mets="http://www.loc.gov/METS/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                xmlns:xMetaDiss="http://www.d-nb.de/standards/xmetadissplus/"
-                xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd
-                                    http://www.d-nb.de/standards/xmetadissplus/ http://files.dnb.de/standards/xmetadissplus/xmetadissplus.xsd">
+<stylesheet xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns="http://www.w3.org/1999/XSL/Transform"
+            xmlns:ddb="http://www.d-nb.de/standards/ddb/"
+            xmlns:pc="http://www.d-nb.de/standards/pc/"
+            xmlns:mets="http://www.loc.gov/METS/"
+            xmlns:mods="http://www.loc.gov/mods/v3"
+            version="2.0"
+            xmlns:xMetaDiss="http://www.d-nb.de/standards/xmetadissplus/"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd
+                                    http://www.d-nb.de/standards/xmetadissplus/ http://files.dnb.de/standards/xmetadissplus/xmetadissplus.xsd
+                                    http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods.xsd
+                                    http://purl.org/dc/elements/1.1/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dc.xsd
+                                    http://www.d-nb.de/standards/pc/ http://files.dnb.de/standards/xmetadiss/pc.xsd
+                                    http://www.d-nb.de/standards/ddb/ http://files.dnb.de/standards/xmetadiss/ddb.xsd">
 
-    <xsl:output standalone="yes" encoding="utf-8" media-type="application/xml" indent="yes" method="xml"/>
+    <output standalone="yes" encoding="utf-8" media-type="application/xml" indent="yes" method="xml"/>
 
-    <xsl:template match="/mets:mets">
-        <xsl:element name="xMetaDiss:xMetaDiss">
+    <strip-space elements="*"/>
 
-        </xsl:element>
-    </xsl:template>
+    <template match="/mets:mets">
+        <xMetaDiss:xMetaDiss>
+            <apply-templates select="mets:dmdSec[@ID='DMD_000']/mets:mdWrap[@MDTYPE='MODS']/mets:xmlData/mods:mods"/>
+        </xMetaDiss:xMetaDiss>
+    </template>
 
-</xsl:stylesheet>
+    <template match="mods:mods">
+        <!-- dc:title -->
+        <apply-templates select="mods:titleInfo[@usage='primary']"/>
+        <!-- dc:creator -->
+        <apply-templates select="mods:name[@type='personal' and mods:role/mods:roleTerm='aut']"/>
+        <!-- dc:subject -->
+        <apply-templates select="mods:classification"/>
+    </template>
+
+    <template match="mods:titleInfo">
+        <dc:title xsi:type="ddb:titleISO639-2" xml:lang="{@lang}">
+            <value-of select="mods:title"/>
+        </dc:title>
+    </template>
+
+    <template match="mods:name[@type='personal']">
+        <dc:creator xsi:type="pc:MetaPers">
+            <pc:person>
+                <pc:name type="nameUsedByThePerson">
+                    <pc:foreName>
+                        <value-of select="mods:namePart[@type='given']"/>
+                    </pc:foreName>
+                    <pc:surName>
+                        <value-of select="mods:namePart[@type='family']"/>
+                    </pc:surName>
+                </pc:name>
+            </pc:person>
+        </dc:creator>
+    </template>
+
+
+    <template match="mods:classification[@authority='z']">
+        <element name="dc:subject">
+            <attribute name="xsi:type">xMetaDiss:noScheme</attribute>
+            <value-of select="text()"/>
+        </element>
+    </template>
+
+    <template match="mods:classification[@authority='ddc']">
+        <element name="dc:subject">
+            <attribute name="xsi:type">dcterms:DDC</attribute>
+            <value-of select="text()"/>
+        </element>
+        <element name="dc:subject">
+            <attribute name="xsi:type">xMetaDiss:DDC-SG</attribute>
+            <value-of select="text()"/>
+        </element>
+    </template>
+
+    <template match="text()"/>
+
+</stylesheet>
