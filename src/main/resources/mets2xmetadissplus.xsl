@@ -21,6 +21,7 @@
             xmlns:mets="http://www.loc.gov/METS/"
             xmlns:mods="http://www.loc.gov/mods/v3"
             xmlns:dcterms="http://purl.org/dc/terms/"
+            xmlns:subject="http://www.d.nb.de/standards/subject/"
             version="2.0"
             xmlns:xMetaDiss="http://www.d-nb.de/standards/xmetadissplus/"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -30,7 +31,8 @@
                                     http://purl.org/dc/elements/1.1/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dc.xsd
                                     http://www.d-nb.de/standards/pc/ http://files.dnb.de/standards/xmetadiss/pc.xsd
                                     http://www.d-nb.de/standards/ddb/ http://files.dnb.de/standards/xmetadiss/ddb.xsd
-                                    http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd">
+                                    http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd
+                                    http://www.d.nb.de/standards/subject/ http://files.dnb.de/standards/xmetadiss/subject.xsd">
 
     <output standalone="yes" encoding="utf-8" media-type="application/xml" indent="yes" method="xml"/>
 
@@ -73,7 +75,7 @@
     </template>
 
     <template match="mods:classification[@authority='z']">
-        <dc:subject xsi:type="xMetaDiss:noScheme">
+        <dc:subject xsi:type="subject:noScheme">
             <value-of select="text()"/>
         </dc:subject>
     </template>
@@ -82,7 +84,7 @@
         <dc:subject xsi:type="dcterms:DDC">
             <value-of select="text()"/>
         </dc:subject>
-        <dc:subject xsi:type="xMetaDiss:DDC-SG">
+        <dc:subject xsi:type="subject:DDC-SG">
             <value-of select="text()"/>
         </dc:subject>
     </template>
