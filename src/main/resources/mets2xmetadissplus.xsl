@@ -38,6 +38,8 @@
 
     <strip-space elements="*"/>
 
+    <!-- Main control templates -->
+
     <template match="/mets:mets">
         <xMetaDiss:xMetaDiss>
             <apply-templates select="mets:dmdSec[@ID='DMD_000']/mets:mdWrap[@MDTYPE='MODS']/mets:xmlData/mods:mods"/>
@@ -51,7 +53,11 @@
         <apply-templates select="mods:name[@type='personal' and mods:role/mods:roleTerm='aut']"/>
         <!-- dc:subject -->
         <apply-templates select="mods:classification"/>
+        <!-- dcterms:tableOfContents -->
+        <apply-templates select="mods:tableOfContents"/>
     </template>
+
+    <!-- individual MODS element templates -->
 
     <template match="mods:titleInfo">
         <dc:title xsi:type="ddb:titleISO639-2" xml:lang="{@lang}">
@@ -89,6 +95,34 @@
         </dc:subject>
     </template>
 
+    <template match="mods:tableOfContents">
+        <dcterms:tableOfContents xsi:type="ddb:contentISO639-2" ddb:type="subject:noScheme">
+            <call-template name="elementLanguageAttributeWithFallback"/>
+            <value-of select="."/>
+        </dcterms:tableOfContents>
+    </template>
+
     <template match="text()"/>
+
+    <!-- Helper templates -->
+
+    <template name="elementLanguageAttributeWithFallback">
+        <attribute name="xml:lang">
+            <choose>
+                <!-- If element has @lang attribute use its value -->
+                <when test="string(@lang)">
+                    <value-of select="@lang"/>
+                </when>
+                <!-- If the element has no @lang attribute fallback to mods:languageTerm element -->
+                <when test="../mods:language/mods:languageTerm[@authority='iso639-2b']">
+                    <value-of select="../mods:language/mods:languageTerm[@authority='iso639-2b']"/>
+                </when>
+                <!-- If there is no language code obtainable, end transformation with error -->
+                <otherwise>
+                    <message terminate="yes" xml:space="preserve">ERROR: No @lang attribute in selected element and no mods:language/mods:languageTerm element found.</message>
+                </otherwise>
+            </choose>
+        </attribute>
+    </template>
 
 </stylesheet>
