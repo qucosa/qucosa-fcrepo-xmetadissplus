@@ -41,6 +41,7 @@
     <servlet>
         <servlet-name>DisseminationServlet</servlet-name>
         <servlet-class>de.qucosa.xmetadissplus.DisseminationServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
     </servlet>
 
     <servlet-mapping>
