@@ -93,15 +93,22 @@ public class DisseminationServlet extends HttpServlet {
                     transform(response.getEntity().getContent(), resp.getOutputStream());
                     resp.setStatus(SC_OK);
                 } else {
-                    resp.sendError(SC_NOT_FOUND, "Cannot obtain METS document at " + metsDocumentUri.toASCIIString());
+                    sendError(resp, SC_NOT_FOUND, "Cannot obtain METS document at " + metsDocumentUri.toASCIIString());
                 }
             }
         } catch (MissingRequiredParameter | IllegalArgumentException e) {
-            resp.sendError(SC_BAD_REQUEST, e.getMessage());
+            sendError(resp, SC_BAD_REQUEST, e.getMessage());
         } catch (Throwable anythingElse) {
             log.warn("Internal server error", anythingElse);
-            resp.sendError(SC_INTERNAL_SERVER_ERROR, anythingElse.getMessage());
+            sendError(resp, SC_INTERNAL_SERVER_ERROR, anythingElse.getMessage());
         }
+    }
+
+    private void sendError(HttpServletResponse resp, int status, String msg) throws IOException {
+        resp.setStatus(status);
+        resp.setContentType("text/plain");
+        resp.setContentLength(msg.getBytes().length);
+        resp.getWriter().print(msg);
     }
 
     private Transformer transformer(InputStream stylesheet) throws TransformerConfigurationException {
