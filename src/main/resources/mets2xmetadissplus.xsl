@@ -22,6 +22,7 @@
             xmlns:mods="http://www.loc.gov/mods/v3"
             xmlns:dcterms="http://purl.org/dc/terms/"
             xmlns:subject="http://www.d.nb.de/standards/subject/"
+            xmlns:cc="http://www.d-nb.de/standards/cc/"
             version="2.0"
             xmlns:xMetaDiss="http://www.d-nb.de/standards/xmetadissplus/"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -32,7 +33,8 @@
                                     http://www.d-nb.de/standards/pc/ http://files.dnb.de/standards/xmetadiss/pc.xsd
                                     http://www.d-nb.de/standards/ddb/ http://files.dnb.de/standards/xmetadiss/ddb.xsd
                                     http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd
-                                    http://www.d.nb.de/standards/subject/ http://files.dnb.de/standards/xmetadiss/subject.xsd">
+                                    http://www.d.nb.de/standards/subject/ http://files.dnb.de/standards/xmetadiss/subject.xsd
+                                    http://www.d-nb.de/standards/cc/ http://files.dnb.de/standards/xmetadiss/cc.xsd">
 
     <output standalone="yes" encoding="utf-8" media-type="application/xml" indent="yes" method="xml"/>
 
@@ -57,6 +59,8 @@
         <apply-templates select="mods:tableOfContents"/>
         <!-- dcterms:abstract -->
         <apply-templates select="mods:abstract[@type='summary']"/>
+        <!-- dc:publisher -->
+        <apply-templates select="mods:name[@type='corporate' and mods:role/mods:roleTerm='pbl']"/>
     </template>
 
     <!-- individual MODS element templates -->
@@ -80,6 +84,16 @@
                 </pc:name>
             </pc:person>
         </dc:creator>
+    </template>
+
+    <template match="mods:name[@type='corporate']">
+        <dc:publisher xsi:type="cc:Publisher">
+            <cc:universityOrInstitution>
+                <cc:name>
+                    <value-of select="mods:namePart"/>
+                </cc:name>
+            </cc:universityOrInstitution>
+        </dc:publisher>
     </template>
 
     <template match="mods:classification[@authority='z']">
