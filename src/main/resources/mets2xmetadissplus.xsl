@@ -55,6 +55,8 @@
         <apply-templates select="mods:classification"/>
         <!-- dcterms:tableOfContents -->
         <apply-templates select="mods:tableOfContents"/>
+        <!-- dcterms:abstract -->
+        <apply-templates select="mods:abstract[@type='summary']"/>
     </template>
 
     <!-- individual MODS element templates -->
@@ -101,6 +103,15 @@
             <value-of select="."/>
         </dcterms:tableOfContents>
     </template>
+
+    <template match="mods:abstract">
+        <dcterms:abstract xsi:type="ddb:contentISO639-2" ddb:type="subject:noScheme">
+            <call-template name="elementLanguageAttributeWithFallback"/>
+            <value-of select="."/>
+        </dcterms:abstract>
+    </template>
+
+    <!-- eat all unmatched text content -->
 
     <template match="text()"/>
 
