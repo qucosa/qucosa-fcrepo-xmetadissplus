@@ -23,6 +23,7 @@
             xmlns:dcterms="http://purl.org/dc/terms/"
             xmlns:subject="http://www.d.nb.de/standards/subject/"
             xmlns:cc="http://www.d-nb.de/standards/cc/"
+            xmlns:thesis="http://www.ndltd.org/standards/metadata/etdms/1.0/"
             version="2.0"
             xmlns:xMetaDiss="http://www.d-nb.de/standards/xmetadissplus/"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -34,7 +35,8 @@
                                     http://www.d-nb.de/standards/ddb/ http://files.dnb.de/standards/xmetadiss/ddb.xsd
                                     http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd
                                     http://www.d.nb.de/standards/subject/ http://files.dnb.de/standards/xmetadiss/subject.xsd
-                                    http://www.d-nb.de/standards/cc/ http://files.dnb.de/standards/xmetadiss/cc.xsd">
+                                    http://www.d-nb.de/standards/cc/ http://files.dnb.de/standards/xmetadiss/cc.xsd
+                                    http://www.ndltd.org/standards/metadata/etdms/1.0/ http://files.dnb.de/standards/xmetadiss/thesis.xsd">
 
     <output standalone="yes" encoding="utf-8" media-type="application/xml" indent="yes" method="xml"/>
 
@@ -52,7 +54,7 @@
         <!-- dc:title -->
         <apply-templates select="mods:titleInfo[@usage='primary']"/>
         <!-- dc:creator -->
-        <apply-templates select="mods:name[@type='personal' and mods:role/mods:roleTerm='aut']"/>
+        <apply-templates select="mods:name[@type='personal' and mods:role/mods:roleTerm='aut']" mode="dc:creator"/>
         <!-- dc:subject -->
         <apply-templates select="mods:classification"/>
         <!-- dcterms:tableOfContents -->
@@ -60,7 +62,13 @@
         <!-- dcterms:abstract -->
         <apply-templates select="mods:abstract[@type='summary']"/>
         <!-- dc:publisher -->
-        <apply-templates select="mods:name[@type='corporate' and mods:role/mods:roleTerm='pbl']"/>
+        <apply-templates select="mods:name[@type='corporate' and mods:role/mods:roleTerm='pbl']" mode="dc:publisher"/>
+        <!-- dc:contributor -->
+        <apply-templates select="mods:name[@type='personal' and (
+                                    mods:role/mods:roleTerm='edt' or
+                                    mods:role/mods:roleTerm='rev' or
+                                    mods:role/mods:roleTerm='sad' or
+                                    mods:role/mods:roleTerm='ths')]" mode="dc:contributor"/>
     </template>
 
     <!-- individual MODS element templates -->
@@ -71,7 +79,7 @@
         </dc:title>
     </template>
 
-    <template match="mods:name[@type='personal']">
+    <template match="mods:name[@type='personal']" mode="dc:creator">
         <dc:creator xsi:type="pc:MetaPers">
             <pc:person>
                 <pc:name type="nameUsedByThePerson">
@@ -86,7 +94,23 @@
         </dc:creator>
     </template>
 
-    <template match="mods:name[@type='corporate']">
+    <template match="mods:name[@type='personal']" mode="dc:contributor">
+        <dc:contributor xsi:type="pc:Contributor">
+            <call-template name="thesisRole"/>
+            <pc:person>
+                <pc:name type="nameUsedByThePerson">
+                    <pc:foreName>
+                        <value-of select="mods:namePart[@type='given']"/>
+                    </pc:foreName>
+                    <pc:surName>
+                        <value-of select="mods:namePart[@type='family']"/>
+                    </pc:surName>
+                </pc:name>
+            </pc:person>
+        </dc:contributor>
+    </template>
+
+    <template match="mods:name[@type='corporate']" mode="dc:publisher">
         <dc:publisher xsi:type="cc:Publisher">
             <cc:universityOrInstitution>
                 <cc:name>
@@ -148,6 +172,27 @@
                 </otherwise>
             </choose>
         </attribute>
+    </template>
+
+    <template name="thesisRole">
+        <variable name="role" select="mods:role/mods:roleTerm[@type='code']"/>
+        <choose>
+            <when test="$role = 'edt'">
+                <attribute name="thesis:role">editor</attribute>
+            </when>
+            <when test="$role = 'rev'">
+                <attribute name="thesis:role">referee</attribute>
+            </when>
+            <when test="$role = 'sad'">
+                <attribute name="thesis:role">advisor</attribute>
+            </when>
+            <when test="$role = 'ths'">
+                <attribute name="thesis:role">advisor</attribute>
+            </when>
+            <otherwise>
+                <message terminate="yes" xml:space="preserve">ERROR: Referenced contributor role is not defined for xMetaDissPlus.</message>
+            </otherwise>
+        </choose>
     </template>
 
 </stylesheet>
