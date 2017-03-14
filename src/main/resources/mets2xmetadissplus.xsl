@@ -25,6 +25,7 @@
             xmlns:cc="http://www.d-nb.de/standards/cc/"
             xmlns:thesis="http://www.ndltd.org/standards/metadata/etdms/1.0/"
             xmlns:myfunc="urn:de:qucosa:xmetadissplus"
+            xmlns:dini="http://www.d-nb.de/standards/xmetadissplus/type/"
             xmlns:xs="http://www.w3.org/2001/XMLSchema"
             version="2.0"
             xmlns:xMetaDiss="http://www.d-nb.de/standards/xmetadissplus/"
@@ -39,7 +40,8 @@
                                     http://www.d.nb.de/standards/subject/ http://files.dnb.de/standards/xmetadiss/subject.xsd
                                     http://www.d-nb.de/standards/cc/ http://files.dnb.de/standards/xmetadiss/cc.xsd
                                     http://www.ndltd.org/standards/metadata/etdms/1.0/ http://files.dnb.de/standards/xmetadiss/thesis.xsd
-                                    http://www.w3.org/2001/XMLSchema https://www.w3.org/2009/XMLSchema/XMLSchema.xsd">
+                                    http://www.w3.org/2001/XMLSchema https://www.w3.org/2009/XMLSchema/XMLSchema.xsd
+                                    http://www.d-nb.de/standards/xmetadissplus/type/ http://files.dnb.de/standards/xmetadissplus/xmetadissplustype.xsd">
 
     <output standalone="yes" encoding="utf-8" media-type="application/xml" indent="yes" method="xml"/>
 
@@ -78,6 +80,8 @@
         <apply-templates select="mods:originInfo[@eventType='publication']/mods:dateIssued"/>
         <!-- dcterms:modified -->
         <apply-templates select="/mets:mets/mets:metsHdr/@LASTMODDATE"/>
+        <!-- dc:type -->
+        <apply-templates select="/mets:mets/mets:structMap[@TYPE='LOGICAL']/mets:div/@TYPE"/>
     </template>
 
     <!-- individual METS/MODS element templates -->
@@ -176,6 +180,12 @@
         </dcterms:modified>
     </template>
 
+    <template match="mets:structMap[@TYPE='LOGICAL']/mets:div/@TYPE">
+        <dc:type xsi:type="dini:PublType">
+            <value-of select="myfunc:diniDocumentType(.)"/>
+        </dc:type>
+    </template>
+
     <!-- eat all unmatched text content -->
 
     <template match="text()"/>
@@ -223,6 +233,35 @@
             <otherwise>
                 <message terminate="yes" xml:space="preserve">ERROR: Referenced contributor role is not defined for xMetaDissPlus.</message>
             </otherwise>
+        </choose>
+    </function>
+
+    <function name="myfunc:diniDocumentType" as="xs:string">
+        <param name="type"/>
+        <choose>
+            <when test="$type = 'article'">article</when>
+            <when test="$type = 'bachelor_thesis'">bachelorThesis</when>
+            <when test="$type = 'contained_work'">bookPart</when>
+            <when test="$type = 'diploma_thesis'">masterThesis</when>
+            <when test="$type = 'doctoral_thesis'">doctoralThesis</when>
+            <when test="$type = 'habilitation_thesis'">doctoralThesis</when>
+            <when test="$type = 'in_proceeding'">conferenceObject</when>
+            <when test="$type = 'issue'">PeriodicalPart</when>
+            <when test="$type = 'lecture'">lecture</when>
+            <when test="$type = 'magister_thesis'">masterThesis</when>
+            <when test="$type = 'monograph'">book</when>
+            <when test="$type = 'musical_notation'">MusicalNotation</when>
+            <when test="$type = 'paper'">StudyThesis</when>
+            <when test="$type = 'periodical'">Periodical</when>
+            <when test="$type = 'preprint'">preprint</when>
+            <when test="$type = 'proceeding'">conferenceObject</when>
+            <when test="$type = 'report'">report</when>
+            <when test="$type = 'research_paper'">workingPaper</when>
+            <when test="$type = 'series'">Periodical</when>
+            <!--
+                Types `multivolume_work` and `text` are not defined for DINI and are mapped to `Other`
+             -->
+            <otherwise>Other</otherwise>
         </choose>
     </function>
 
