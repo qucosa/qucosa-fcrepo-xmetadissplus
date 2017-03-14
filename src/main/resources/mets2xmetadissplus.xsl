@@ -100,8 +100,8 @@
     </template>
 
     <template match="mods:name[@type='personal']" mode="dc:contributor">
-        <dc:contributor xsi:type="pc:Contributor">
-            <call-template name="thesisRole"/>
+        <dc:contributor xsi:type="pc:Contributor"
+                        thesis:role="{myfunc:thesisRole(mods:role/mods:roleTerm[@type='code'])}">
             <pc:person>
                 <pc:name type="nameUsedByThePerson">
                     <pc:foreName>
@@ -160,6 +160,12 @@
         </dcterms:dateSubmitted>
     </template>
 
+    <!-- eat all unmatched text content -->
+
+    <template match="text()"/>
+
+    <!-- Helper functions and templates -->
+
     <function name="myfunc:formatDateTime" as="xs:string">
         <param name="value" as="xs:string"/>
         <choose>
@@ -171,12 +177,6 @@
             </otherwise>
         </choose>
     </function>
-
-    <!-- eat all unmatched text content -->
-
-    <template match="text()"/>
-
-    <!-- Helper templates -->
 
     <template name="elementLanguageAttributeWithFallback">
         <attribute name="xml:lang">
@@ -197,25 +197,17 @@
         </attribute>
     </template>
 
-    <template name="thesisRole">
-        <variable name="role" select="mods:role/mods:roleTerm[@type='code']"/>
+    <function name="myfunc:thesisRole" as="xs:string">
+        <param name="role"/>
         <choose>
-            <when test="$role = 'edt'">
-                <attribute name="thesis:role">editor</attribute>
-            </when>
-            <when test="$role = 'rev'">
-                <attribute name="thesis:role">referee</attribute>
-            </when>
-            <when test="$role = 'sad'">
-                <attribute name="thesis:role">advisor</attribute>
-            </when>
-            <when test="$role = 'ths'">
-                <attribute name="thesis:role">advisor</attribute>
-            </when>
+            <when test="$role = 'edt'">editor</when>
+            <when test="$role = 'rev'">referee</when>
+            <when test="$role = 'sad'">advisor</when>
+            <when test="$role = 'ths'">advisor</when>
             <otherwise>
                 <message terminate="yes" xml:space="preserve">ERROR: Referenced contributor role is not defined for xMetaDissPlus.</message>
             </otherwise>
         </choose>
-    </template>
+    </function>
 
 </stylesheet>
