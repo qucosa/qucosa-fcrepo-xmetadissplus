@@ -24,6 +24,8 @@
             xmlns:subject="http://www.d.nb.de/standards/subject/"
             xmlns:cc="http://www.d-nb.de/standards/cc/"
             xmlns:thesis="http://www.ndltd.org/standards/metadata/etdms/1.0/"
+            xmlns:myfunc="urn:de:qucosa:xmetadissplus"
+            xmlns:xs="http://www.w3.org/2001/XMLSchema"
             version="2.0"
             xmlns:xMetaDiss="http://www.d-nb.de/standards/xmetadissplus/"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -36,7 +38,8 @@
                                     http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd
                                     http://www.d.nb.de/standards/subject/ http://files.dnb.de/standards/xmetadiss/subject.xsd
                                     http://www.d-nb.de/standards/cc/ http://files.dnb.de/standards/xmetadiss/cc.xsd
-                                    http://www.ndltd.org/standards/metadata/etdms/1.0/ http://files.dnb.de/standards/xmetadiss/thesis.xsd">
+                                    http://www.ndltd.org/standards/metadata/etdms/1.0/ http://files.dnb.de/standards/xmetadiss/thesis.xsd
+                                    http://www.w3.org/2001/XMLSchema https://www.w3.org/2009/XMLSchema/XMLSchema.xsd">
 
     <output standalone="yes" encoding="utf-8" media-type="application/xml" indent="yes" method="xml"/>
 
@@ -69,6 +72,8 @@
                                     mods:role/mods:roleTerm='rev' or
                                     mods:role/mods:roleTerm='sad' or
                                     mods:role/mods:roleTerm='ths')]" mode="dc:contributor"/>
+        <!-- dcterms:dateSubmitted -->
+        <apply-templates select="mods:originInfo[@eventType='publication']/mods:dateOther[@type='submission']"/>
     </template>
 
     <!-- individual MODS element templates -->
@@ -148,6 +153,24 @@
             <value-of select="."/>
         </dcterms:abstract>
     </template>
+
+    <template match="mods:dateOther[@type='submission']">
+        <dcterms:dateSubmitted xsi:type="dcterms:W3CDTF">
+            <value-of select="myfunc:formatDateTime(.)"/>
+        </dcterms:dateSubmitted>
+    </template>
+
+    <function name="myfunc:formatDateTime" as="xs:string">
+        <param name="value" as="xs:string"/>
+        <choose>
+            <when test="contains($value, 'T')">
+                <value-of select="format-dateTime(xs:dateTime($value), '[Y0001]-[M01]-[D01]')"/>
+            </when>
+            <otherwise>
+                <value-of select="format-date(xs:date($value), '[Y0001]-[M01]-[D01]')"/>
+            </otherwise>
+        </choose>
+    </function>
 
     <!-- eat all unmatched text content -->
 
