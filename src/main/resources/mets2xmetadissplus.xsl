@@ -76,9 +76,11 @@
         <apply-templates select="mods:originInfo[@eventType='publication']/mods:dateOther[@type='submission']"/>
         <!-- dcterms:issued -->
         <apply-templates select="mods:originInfo[@eventType='publication']/mods:dateIssued"/>
+        <!-- dcterms:modified -->
+        <apply-templates select="/mets:mets/mets:metsHdr/@LASTMODDATE"/>
     </template>
 
-    <!-- individual MODS element templates -->
+    <!-- individual METS/MODS element templates -->
 
     <template match="mods:titleInfo">
         <dc:title xsi:type="ddb:titleISO639-2" xml:lang="{@lang}">
@@ -166,6 +168,12 @@
         <dcterms:issued xsi:type="dcterms:W3CDTF">
             <value-of select="myfunc:formatDateTime(.)"/>
         </dcterms:issued>
+    </template>
+
+    <template match="mets:metsHdr/@LASTMODDATE">
+        <dcterms:modified xsi:type="dcterms:W3CDTF">
+            <value-of select="myfunc:formatDateTime(.)"/>
+        </dcterms:modified>
     </template>
 
     <!-- eat all unmatched text content -->
