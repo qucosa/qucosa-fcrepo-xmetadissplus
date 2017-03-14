@@ -74,6 +74,8 @@
                                     mods:role/mods:roleTerm='ths')]" mode="dc:contributor"/>
         <!-- dcterms:dateSubmitted -->
         <apply-templates select="mods:originInfo[@eventType='publication']/mods:dateOther[@type='submission']"/>
+        <!-- dcterms:issued -->
+        <apply-templates select="mods:originInfo[@eventType='publication']/mods:dateIssued"/>
     </template>
 
     <!-- individual MODS element templates -->
@@ -158,6 +160,12 @@
         <dcterms:dateSubmitted xsi:type="dcterms:W3CDTF">
             <value-of select="myfunc:formatDateTime(.)"/>
         </dcterms:dateSubmitted>
+    </template>
+
+    <template match="mods:dateIssued">
+        <dcterms:issued xsi:type="dcterms:W3CDTF">
+            <value-of select="myfunc:formatDateTime(.)"/>
+        </dcterms:issued>
     </template>
 
     <!-- eat all unmatched text content -->
