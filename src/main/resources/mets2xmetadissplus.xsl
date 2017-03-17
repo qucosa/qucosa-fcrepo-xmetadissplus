@@ -82,6 +82,8 @@
         <apply-templates select="/mets:mets/mets:metsHdr/@LASTMODDATE"/>
         <!-- dc:type -->
         <apply-templates select="/mets:mets/mets:structMap[@TYPE='LOGICAL']/mets:div/@TYPE"/>
+        <!-- dini:version_driver -->
+        <apply-templates select="mods:originInfo[@eventType='production']/mods:edition" mode="dini:version_driver"/>
     </template>
 
     <!-- individual METS/MODS element templates -->
@@ -184,6 +186,21 @@
         <dc:type xsi:type="dini:PublType">
             <value-of select="myfunc:diniDocumentType(.)"/>
         </dc:type>
+    </template>
+
+    <template match="mods:edition" mode="dini:version_driver">
+        <dini:version_driver>
+            <choose>
+                <when test=".='draft'">draft</when>
+                <when test=".='submitted'">submittedVersion</when>
+                <when test=".='accepted'">acceptedVersion</when>
+                <when test=".='published'">publishedVersion</when>
+                <when test=".='updated'">updatedVersion</when>
+                <otherwise>
+                    <message terminate="yes" xml:space="preserve">ERROR: Document state cannot be mapped to DINI vocabulary.</message>
+                </otherwise>
+            </choose>
+        </dini:version_driver>
     </template>
 
     <!-- eat all unmatched text content -->
