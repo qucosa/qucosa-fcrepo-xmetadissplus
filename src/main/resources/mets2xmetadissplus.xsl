@@ -27,6 +27,7 @@
             xmlns:myfunc="urn:de:qucosa:xmetadissplus"
             xmlns:dini="http://www.d-nb.de/standards/xmetadissplus/type/"
             xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:urn="http://www.d-nb.de/standards/urn/"
             version="2.0"
             xmlns:xMetaDiss="http://www.d-nb.de/standards/xmetadissplus/"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -41,7 +42,8 @@
                                     http://www.d-nb.de/standards/cc/ http://files.dnb.de/standards/xmetadiss/cc.xsd
                                     http://www.ndltd.org/standards/metadata/etdms/1.0/ http://files.dnb.de/standards/xmetadiss/thesis.xsd
                                     http://www.w3.org/2001/XMLSchema https://www.w3.org/2009/XMLSchema/XMLSchema.xsd
-                                    http://www.d-nb.de/standards/xmetadissplus/type/ http://files.dnb.de/standards/xmetadissplus/xmetadissplustype.xsd">
+                                    http://www.d-nb.de/standards/xmetadissplus/type/ http://files.dnb.de/standards/xmetadissplus/xmetadissplustype.xsd
+                                    http://www.d-nb.de/standards/urn/ http://files.dnb.de/standards/xmetadiss/urn.xsd">
 
     <output standalone="yes" encoding="utf-8" media-type="application/xml" indent="yes" method="xml"/>
 
@@ -84,6 +86,8 @@
         <apply-templates select="/mets:mets/mets:structMap[@TYPE='LOGICAL']/mets:div/@TYPE"/>
         <!-- dini:version_driver -->
         <apply-templates select="mods:originInfo[@eventType='production']/mods:edition" mode="dini:version_driver"/>
+        <!-- dc:identifier -->
+        <apply-templates select="mods:identifier[@type='qucosa:urn']"/>
     </template>
 
     <!-- individual METS/MODS element templates -->
@@ -201,6 +205,12 @@
                 </otherwise>
             </choose>
         </dini:version_driver>
+    </template>
+
+    <template match="mods:identifier[@type='qucosa:urn']">
+        <dc:identifier xsi:type="urn:nbn">
+            <value-of select="."/>
+        </dc:identifier>
     </template>
 
     <!-- eat all unmatched text content -->
