@@ -93,6 +93,8 @@
         <!-- SKIP dcterms:medium -->
         <!-- SKIP dcterms:bibliographicCitation -->
 
+        <!-- dc:source -->
+        <apply-templates select="mods:relatedItem[@type='otherFormat']" mode="dc:source"/>
     </template>
 
     <!-- individual METS/MODS element templates -->
@@ -216,6 +218,18 @@
         <dc:identifier xsi:type="urn:nbn">
             <value-of select="."/>
         </dc:identifier>
+    </template>
+
+    <template match="mods:relatedItem[@type='otherFormat']/mods:location/mods:url" mode="dc:source">
+        <dc:source xsi:type="dcterms:URI">
+            <value-of select="."/>
+        </dc:source>
+    </template>
+
+    <template match="mods:relatedItem[@type='otherFormat']/mods:identifier[@type='isbn']" mode="dc:source">
+        <dc:source xsi:type="ddb:ISBN">
+            <value-of select="."/>
+        </dc:source>
     </template>
 
     <!-- eat all unmatched text content -->
