@@ -88,6 +88,11 @@
         <apply-templates select="mods:originInfo[@eventType='production']/mods:edition" mode="dini:version_driver"/>
         <!-- dc:identifier -->
         <apply-templates select="mods:identifier[@type='qucosa:urn']"/>
+
+        <!-- SKIP dcterms:extend -->
+        <!-- SKIP dcterms:medium -->
+        <!-- SKIP dcterms:bibliographicCitation -->
+
     </template>
 
     <!-- individual METS/MODS element templates -->
