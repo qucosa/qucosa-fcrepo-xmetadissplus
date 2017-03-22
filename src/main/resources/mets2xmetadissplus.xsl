@@ -111,6 +111,10 @@
 
         <!-- Skip ddb:contact -->
 
+        <!-- ddb:identifier -->
+        <apply-templates select="mods:identifier[@type]" mode="ddb:identifier"/>
+        <apply-templates select="/mets:mets/mets:amdSec//slub:info/slub:vgwortOpenKey" mode="ddb:identifier"/>
+
         <!-- ddb:rights -->
         <apply-templates select="/mets:mets/mets:amdSec//slub:info/slub:rights"/>
     </template>
@@ -265,6 +269,24 @@
         <dc:language xsi:type="dcterms:ISO639-2">
             <value-of select="."/>
         </dc:language>
+    </template>
+
+    <template match="mods:identifier[@type='swb-ppn' or @type='qucosa:urn']" mode="ddb:identifier">
+        <variable name="ddbtype">
+            <choose>
+                <when test="@type='swb-ppn'">Erstkat-ID</when>
+                <when test="@type='qucosa:urn'">URN</when>
+            </choose>
+        </variable>
+        <ddb:identifier ddb:type="{$ddbtype}">
+            <value-of select="."/>
+        </ddb:identifier>
+    </template>
+
+    <template match="slub:vgwortOpenKey" mode="ddb:identifier">
+        <ddb:identifier ddb:type="VG-Wort-Pixel">
+            <value-of select="."/>
+        </ddb:identifier>
     </template>
 
     <!-- eat all unmatched text content -->
