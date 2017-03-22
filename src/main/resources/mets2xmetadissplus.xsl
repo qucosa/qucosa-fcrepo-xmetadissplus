@@ -108,6 +108,9 @@
         <call-template name="thesisDegreeElement">
             <with-param name="type" select="/mets:mets/mets:structMap[@TYPE='LOGICAL']/mets:div/@TYPE"/>
         </call-template>
+
+        <!-- ddb:rights -->
+        <apply-templates select="/mets:mets/mets:amdSec//slub:info/slub:rights"/>
     </template>
 
     <!-- individual METS/MODS element templates -->
@@ -243,6 +246,17 @@
         <dc:source xsi:type="ddb:ISBN">
             <value-of select="."/>
         </dc:source>
+    </template>
+
+    <template match="slub:info/slub:rights">
+        <choose>
+            <when test="slub:agreement[@given='yes']">
+                <ddb:rights ddb:kind="free"/>
+            </when>
+            <otherwise>
+                <ddb:rights ddb:kind="unknown"/>
+            </otherwise>
+        </choose>
     </template>
 
     <template match="mods:language/mods:languageTerm[@authority='iso639-2b' and @type='code']">
