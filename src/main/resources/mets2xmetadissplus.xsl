@@ -95,10 +95,12 @@
 
         <!-- dc:source -->
         <apply-templates select="mods:relatedItem[@type='otherFormat']"/>
+
         <!-- dc:language -->
         <apply-templates select="mods:language/mods:languageTerm[@authority='iso639-2b' and @type='code']"/>
 
         <!-- SKIP dc:relation -->
+        <!-- SKIP dc:coverage -->
     </template>
 
     <!-- individual METS/MODS element templates -->
