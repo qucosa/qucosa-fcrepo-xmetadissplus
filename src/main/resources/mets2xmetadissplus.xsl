@@ -94,7 +94,7 @@
         <!-- SKIP dcterms:bibliographicCitation -->
 
         <!-- dc:source -->
-        <apply-templates select="mods:relatedItem[@type='otherFormat']" mode="dc:source"/>
+        <apply-templates select="mods:relatedItem[@type='otherFormat']"/>
     </template>
 
     <!-- individual METS/MODS element templates -->
@@ -220,13 +220,13 @@
         </dc:identifier>
     </template>
 
-    <template match="mods:relatedItem[@type='otherFormat']/mods:location/mods:url" mode="dc:source">
+    <template match="mods:relatedItem[@type='otherFormat']/mods:location/mods:url">
         <dc:source xsi:type="dcterms:URI">
             <value-of select="."/>
         </dc:source>
     </template>
 
-    <template match="mods:relatedItem[@type='otherFormat']/mods:identifier[@type='isbn']" mode="dc:source">
+    <template match="mods:relatedItem[@type='otherFormat']/mods:identifier[@type='isbn']">
         <dc:source xsi:type="ddb:ISBN">
             <value-of select="."/>
         </dc:source>
