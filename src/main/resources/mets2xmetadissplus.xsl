@@ -95,6 +95,8 @@
 
         <!-- dc:source -->
         <apply-templates select="mods:relatedItem[@type='otherFormat']"/>
+        <!-- dc:language -->
+        <apply-templates select="mods:language/mods:languageTerm[@authority='iso639-2b' and @type='code']"/>
     </template>
 
     <!-- individual METS/MODS element templates -->
@@ -230,6 +232,12 @@
         <dc:source xsi:type="ddb:ISBN">
             <value-of select="."/>
         </dc:source>
+    </template>
+
+    <template match="mods:language/mods:languageTerm[@authority='iso639-2b' and @type='code']">
+        <dc:language xsi:type="dcterms:ISO639-2">
+            <value-of select="."/>
+        </dc:language>
     </template>
 
     <!-- eat all unmatched text content -->
