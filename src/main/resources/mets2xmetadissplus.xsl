@@ -28,6 +28,7 @@
             xmlns:dini="http://www.d-nb.de/standards/xmetadissplus/type/"
             xmlns:xs="http://www.w3.org/2001/XMLSchema"
             xmlns:urn="http://www.d-nb.de/standards/urn/"
+            xmlns:slub="http://slub-dresden.de/"
             version="2.0"
             xmlns:xMetaDiss="http://www.d-nb.de/standards/xmetadissplus/"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -102,6 +103,11 @@
         <!-- SKIP dc:relation -->
         <!-- SKIP dc:coverage -->
         <!-- SKIP dc:rights -->
+
+        <!-- thesis:degree -->
+        <call-template name="thesisDegreeElement">
+            <with-param name="type" select="/mets:mets/mets:structMap[@TYPE='LOGICAL']/mets:div/@TYPE"/>
+        </call-template>
     </template>
 
     <!-- individual METS/MODS element templates -->
@@ -295,6 +301,18 @@
         </choose>
     </function>
 
+    <function name="myfunc:thesisLevel" as="xs:string">
+        <param name="type"/>
+        <choose>
+            <when test="$type = 'bachelor_thesis'">bachelor</when>
+            <when test="$type = 'diploma_thesis'">Diplom</when>
+            <when test="$type = 'doctoral_thesis'">thesis.doctoral</when>
+            <when test="$type = 'habilitation_thesis'">thesis.habilitation</when>
+            <when test="$type = 'magister_thesis'">M.A.</when>
+            <otherwise>other</otherwise>
+        </choose>
+    </function>
+
     <function name="myfunc:diniDocumentType" as="xs:string">
         <param name="type"/>
         <choose>
@@ -323,5 +341,46 @@
             <otherwise>Other</otherwise>
         </choose>
     </function>
+
+    <template name="thesisDegreeElement">
+        <param name="type"/>
+        <if test="contains($type, '_thesis')">
+            <thesis:degree>
+                <thesis:level>
+                    <value-of select="myfunc:thesisLevel($type)"/>
+                </thesis:level>
+                <for-each select="mods:name[@type='corporate' and (
+                     mods:role/mods:roleTerm[@type='code' and .='pbl'] or
+                     mods:role/mods:roleTerm[@type='code' and .='dgg'])]">
+                    <variable name="id" select="@ID"/>
+                    <thesis:grantor xsi:type="cc:Corporate">
+                        <cc:universityOrInstitution>
+                            <cc:name>
+                                <value-of select="mods:namePart"/>
+                            </cc:name>
+                            <apply-templates
+                                    select="../mods:extension/slub:info/slub:corporation[replace(@slub:ref, '#', '') = $id]"
+                                    mode="thesis:grantor"/>
+                        </cc:universityOrInstitution>
+                    </thesis:grantor>
+                </for-each>
+            </thesis:degree>
+        </if>
+    </template>
+
+    <template match="slub:corporation" mode="thesis:grantor">
+        <cc:place>
+            <value-of select="@place"/>
+        </cc:place>
+        <if test="slub:faculty|slub:department">
+            <cc:department>
+                <for-each select="slub:faculty|slub:department">
+                    <cc:name>
+                        <value-of select="."/>
+                    </cc:name>
+                </for-each>
+            </cc:department>
+        </if>
+    </template>
 
 </stylesheet>
