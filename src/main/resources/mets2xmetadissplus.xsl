@@ -101,6 +101,7 @@
 
         <!-- SKIP dc:relation -->
         <!-- SKIP dc:coverage -->
+        <!-- SKIP dc:rights -->
     </template>
 
     <!-- individual METS/MODS element templates -->
