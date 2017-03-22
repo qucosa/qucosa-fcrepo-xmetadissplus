@@ -109,6 +109,8 @@
             <with-param name="type" select="/mets:mets/mets:structMap[@TYPE='LOGICAL']/mets:div/@TYPE"/>
         </call-template>
 
+        <!-- Skip ddb:contact -->
+
         <!-- ddb:rights -->
         <apply-templates select="/mets:mets/mets:amdSec//slub:info/slub:rights"/>
     </template>
