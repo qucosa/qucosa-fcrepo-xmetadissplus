@@ -298,6 +298,9 @@
     <function name="myfunc:formatDateTime" as="xs:string">
         <param name="value" as="xs:string"/>
         <choose>
+            <when test="string-length($value)=4">
+                <value-of select="$value"/>
+            </when>
             <when test="contains($value, 'T')">
                 <value-of select="format-dateTime(xs:dateTime($value), '[Y0001]-[M01]-[D01]')"/>
             </when>
