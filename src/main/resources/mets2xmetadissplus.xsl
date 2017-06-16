@@ -164,6 +164,12 @@
                 <cc:name>
                     <value-of select="mods:namePart"/>
                 </cc:name>
+                <if test="//slub:corporation/@ref=@ID">
+                    <variable name="refid" select="@ID"/>
+                    <cc:place>
+                        <value-of select="//slub:corporation[@ref=$refid]/@place"/>
+                    </cc:place>
+                </if>
             </cc:universityOrInstitution>
         </dc:publisher>
     </template>
