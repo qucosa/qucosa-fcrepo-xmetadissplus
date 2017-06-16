@@ -80,7 +80,7 @@
         <!-- dcterms:dateSubmitted -->
         <apply-templates select="mods:originInfo[@eventType='publication']/mods:dateOther[@type='submission']"/>
         <!-- dcterms:issued -->
-        <apply-templates select="mods:originInfo[@eventType='publication']/mods:dateIssued"/>
+        <apply-templates select="mods:originInfo[@eventType='distribution']/mods:dateIssued"/>
         <!-- dcterms:modified -->
         <apply-templates select="/mets:mets/mets:metsHdr/@LASTMODDATE"/>
         <!-- dc:type -->
