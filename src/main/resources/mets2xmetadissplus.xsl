@@ -191,6 +191,11 @@
         </dc:subject>
     </template>
 
+    <template match="mods:classification[@authority='rvk']">
+        <dc:subject xsi:type="xMetaDiss:RVK">
+            <value-of select="text()"/>
+        </dc:subject>
+    </template>
     <template match="mods:tableOfContents">
         <dcterms:tableOfContents xsi:type="ddb:contentISO639-2" ddb:type="subject:noScheme">
             <call-template name="elementLanguageAttributeWithFallback"/>
