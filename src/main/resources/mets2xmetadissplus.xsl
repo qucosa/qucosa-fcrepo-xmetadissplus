@@ -177,7 +177,7 @@
     </template>
 
     <template match="mods:classification[@authority='z']">
-        <dc:subject xsi:type="subject:noScheme">
+        <dc:subject xsi:type="xMetaDiss:noScheme">
             <value-of select="text()"/>
         </dc:subject>
     </template>
