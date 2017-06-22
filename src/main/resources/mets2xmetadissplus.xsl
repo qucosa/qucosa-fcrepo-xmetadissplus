@@ -328,10 +328,24 @@
                 <value-of select="$value"/>
             </when>
             <when test="contains($value, 'T')">
-                <value-of select="format-dateTime(xs:dateTime($value), '[Y0001]-[M01]-[D01]')"/>
+                <value-of select="format-dateTime(xs:dateTime(myfunc:formatTimezoneHour($value)), '[Y0001]-[M01]-[D01]')"/>
             </when>
             <otherwise>
                 <value-of select="format-date(xs:date($value), '[Y0001]-[M01]-[D01]')"/>
+            </otherwise>
+        </choose>
+    </function>
+
+    <function name="myfunc:formatTimezoneHour" as="xs:string">
+        <param name="value" as="xs:string"/>
+        <choose>
+            <when test="matches($value, '[+|-]\d{4}$')">
+                <variable name="a" select="substring($value, 1, string-length($value)-2)"/>
+                <variable name="b" select="substring($value, string-length($value)-1)"/>
+                <value-of select="concat($a, ':', $b)"/>
+            </when>
+            <otherwise>
+                <value-of select="$value"/>
             </otherwise>
         </choose>
     </function>
