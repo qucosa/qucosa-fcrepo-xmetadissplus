@@ -27,7 +27,7 @@
 
     <groupId>de.qucosa</groupId>
     <artifactId>qucosa-fcrepo-xmetadissplus</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0-rc1</version>
     <packaging>war</packaging>
 
     <dependencies>
