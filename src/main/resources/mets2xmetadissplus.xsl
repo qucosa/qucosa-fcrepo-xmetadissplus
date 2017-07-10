@@ -198,30 +198,38 @@
     </template>
 
     <template match="mods:classification[@authority='z']">
-        <dc:subject xsi:type="xMetaDiss:noScheme">
-            <value-of select="text()"/>
-        </dc:subject>
+        <for-each select="tokenize(text(), ', ')">
+            <dc:subject xsi:type="xMetaDiss:noScheme">
+                <value-of select="."/>
+            </dc:subject>
+        </for-each>
     </template>
 
     <template match="mods:classification[@authority='ddc']">
-        <dc:subject xsi:type="dcterms:DDC">
-            <value-of select="text()"/>
-        </dc:subject>
-        <dc:subject xsi:type="subject:DDC-SG">
-            <value-of select="text()"/>
-        </dc:subject>
+        <for-each select="tokenize(text(), ', ')">
+            <dc:subject xsi:type="dcterms:DDC">
+                <value-of select="."/>
+            </dc:subject>
+            <dc:subject xsi:type="subject:DDC-SG">
+                <value-of select="."/>
+            </dc:subject>
+        </for-each>
     </template>
 
     <template match="mods:classification[@authority='rvk']">
-        <dc:subject xsi:type="xMetaDiss:RVK">
-            <value-of select="text()"/>
-        </dc:subject>
+        <for-each select="tokenize(text(), ', ')">
+            <dc:subject xsi:type="xMetaDiss:RVK">
+                <value-of select="."/>
+            </dc:subject>
+        </for-each>
     </template>
 
     <template match="mods:classification[@authority='sswd']">
-        <dc:subject xsi:type="xMetaDiss:SWD">
-            <value-of select="text()"/>
-        </dc:subject>
+        <for-each select="tokenize(text(), ', ')">
+            <dc:subject xsi:type="xMetaDiss:SWD">
+                <value-of select="."/>
+            </dc:subject>
+        </for-each>
     </template>
 
     <template match="mods:tableOfContents">
