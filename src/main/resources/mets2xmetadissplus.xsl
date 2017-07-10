@@ -70,6 +70,8 @@
         <!-- dcterms:abstract -->
         <apply-templates select="mods:abstract[@type='summary']"/>
         <!-- dc:publisher -->
+        <apply-templates select="mods:name[@type='corporate' and @displayLabel='mapping-hack-default-publisher']"
+                         mode="mapping-hack-default-publisher"/>
         <apply-templates select="mods:name[@type='corporate' and mods:role/mods:roleTerm='pbl']" mode="dc:publisher"/>
         <!-- dc:contributor -->
         <apply-templates select="mods:name[@type='personal' and (
@@ -174,6 +176,22 @@
                 </if>
             </cc:universityOrInstitution>
         </dc:publisher>
+    </template>
+
+    <template match="mods:name[@type='corporate']" mode="mapping-hack-default-publisher">
+        <if test="//slub:corporation/@ref=@ID">
+            <variable name="refid" select="@ID"/>
+            <dc:publisher xsi:type="cc:Publisher">
+                <cc:universityOrInstitution>
+                    <cc:name>
+                        <value-of select="//slub:corporation[@ref=$refid]/slub:university"/>
+                    </cc:name>
+                    <cc:place>
+                        <value-of select="//slub:corporation[@ref=$refid]/@place"/>
+                    </cc:place>
+                </cc:universityOrInstitution>
+            </dc:publisher>
+        </if>
     </template>
 
     <template match="mods:classification[@authority='z']">
