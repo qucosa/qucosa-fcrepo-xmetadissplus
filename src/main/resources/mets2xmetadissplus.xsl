@@ -72,7 +72,8 @@
         <!-- dc:publisher -->
         <apply-templates select="mods:name[@type='corporate' and @displayLabel='mapping-hack-default-publisher']"
                          mode="mapping-hack-default-publisher"/>
-        <apply-templates select="mods:name[@type='corporate' and mods:role/mods:roleTerm='pbl']" mode="dc:publisher"/>
+        <apply-templates select="mods:name[@type='corporate' and mods:role/mods:roleTerm='pbl']"
+                         mode="dc:publisher"/>
         <!-- dc:contributor -->
         <apply-templates select="mods:name[@type='personal' and (
                                     mods:role/mods:roleTerm='edt' or
@@ -168,10 +169,11 @@
                 <cc:name>
                     <value-of select="mods:namePart"/>
                 </cc:name>
-                <if test="//slub:corporation/@ref=@ID">
-                    <variable name="refid" select="@ID"/>
+                <variable name="refid" select="@ID"/>
+                <variable name="corporation_node" select="//slub:corporation[@ref=$refid or @ref=concat('#', $refid)]"/>
+                <if test="$corporation_node">
                     <cc:place>
-                        <value-of select="//slub:corporation[@ref=$refid]/@place"/>
+                        <value-of select="$corporation_node/@place"/>
                     </cc:place>
                 </if>
             </cc:universityOrInstitution>
@@ -179,15 +181,16 @@
     </template>
 
     <template match="mods:name[@type='corporate']" mode="mapping-hack-default-publisher">
-        <if test="//slub:corporation/@ref=@ID">
-            <variable name="refid" select="@ID"/>
+        <variable name="refid" select="@ID"/>
+        <variable name="corporation_node" select="//slub:corporation[@ref=$refid or @ref=concat('#', $refid)]"/>
+        <if test="$corporation_node">
             <dc:publisher xsi:type="cc:Publisher">
                 <cc:universityOrInstitution>
                     <cc:name>
-                        <value-of select="//slub:corporation[@ref=$refid]/slub:university"/>
+                        <value-of select="$corporation_node/slub:university"/>
                     </cc:name>
                     <cc:place>
-                        <value-of select="//slub:corporation[@ref=$refid]/@place"/>
+                        <value-of select="$corporation_node/@place"/>
                     </cc:place>
                 </cc:universityOrInstitution>
             </dc:publisher>
