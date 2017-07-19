@@ -436,6 +436,12 @@
             <when test="$type = 'report'">report</when>
             <when test="$type = 'research_paper'">workingPaper</when>
             <when test="$type = 'series'">Periodical</when>
+
+            <!--
+                Type `in_book` has been renamed to `contained_work`, but some older documents might have `in_book`.
+            -->
+            <when test="$type = 'in_book'">bookPart</when>
+
             <!--
                 Types `multivolume_work` and `text` are not defined for DINI and are mapped to `Other`
              -->
