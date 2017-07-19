@@ -121,7 +121,8 @@
         <apply-templates select="/mets:mets/mets:amdSec//slub:info/slub:vgwortOpenKey" mode="ddb:identifier"/>
 
         <!-- ddb:rights -->
-        <apply-templates select="/mets:mets/mets:amdSec//slub:info/slub:rights"/>
+        <ddb:rights ddb:kind="free"/>
+
     </template>
 
     <!-- individual METS/MODS element templates -->
@@ -307,17 +308,6 @@
         <dc:source xsi:type="ddb:ISBN">
             <value-of select="."/>
         </dc:source>
-    </template>
-
-    <template match="slub:info/slub:rights">
-        <choose>
-            <when test="slub:agreement[@given='yes']">
-                <ddb:rights ddb:kind="free"/>
-            </when>
-            <otherwise>
-                <ddb:rights ddb:kind="unknown"/>
-            </otherwise>
-        </choose>
     </template>
 
     <template match="mods:language/mods:languageTerm[@authority='iso639-2b' and @type='code']">
