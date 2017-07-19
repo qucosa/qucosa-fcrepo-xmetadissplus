@@ -388,6 +388,51 @@
         </attribute>
     </template>
 
+    <template name="thesisDegreeElement">
+        <param name="type"/>
+        <if test="contains($type, '_thesis')">
+            <thesis:degree>
+                <thesis:level>
+                    <value-of select="myfunc:thesisLevel($type)"/>
+                </thesis:level>
+                <for-each select="mods:name[@type='corporate' and (
+                     mods:role/mods:roleTerm[@type='code' and .='pbl'] or
+                     mods:role/mods:roleTerm[@type='code' and .='dgg'])]">
+                    <variable name="id" select="@ID"/>
+                    <thesis:grantor xsi:type="cc:Corporate">
+                        <cc:universityOrInstitution>
+                            <cc:name>
+                                <value-of select="mods:namePart"/>
+                            </cc:name>
+                            <apply-templates
+                                    select="../mods:extension/slub:info/slub:corporation[replace(@slub:ref, '#', '') = $id]"
+                                    mode="thesis:grantor"/>
+                        </cc:universityOrInstitution>
+                    </thesis:grantor>
+                </for-each>
+            </thesis:degree>
+        </if>
+    </template>
+
+    <template match="slub:corporation" mode="thesis:grantor">
+        <cc:place>
+            <value-of select="@place"/>
+        </cc:place>
+        <if test="slub:faculty|slub:department">
+            <cc:department>
+                <for-each select="slub:faculty|slub:department">
+                    <cc:name>
+                        <value-of select="."/>
+                    </cc:name>
+                </for-each>
+            </cc:department>
+        </if>
+    </template>
+
+    <!--
+        XSLT Mapping functions
+    -->
+
     <function name="myfunc:thesisRole" as="xs:string">
         <param name="role"/>
         <choose>
@@ -448,46 +493,5 @@
             <otherwise>Other</otherwise>
         </choose>
     </function>
-
-    <template name="thesisDegreeElement">
-        <param name="type"/>
-        <if test="contains($type, '_thesis')">
-            <thesis:degree>
-                <thesis:level>
-                    <value-of select="myfunc:thesisLevel($type)"/>
-                </thesis:level>
-                <for-each select="mods:name[@type='corporate' and (
-                     mods:role/mods:roleTerm[@type='code' and .='pbl'] or
-                     mods:role/mods:roleTerm[@type='code' and .='dgg'])]">
-                    <variable name="id" select="@ID"/>
-                    <thesis:grantor xsi:type="cc:Corporate">
-                        <cc:universityOrInstitution>
-                            <cc:name>
-                                <value-of select="mods:namePart"/>
-                            </cc:name>
-                            <apply-templates
-                                    select="../mods:extension/slub:info/slub:corporation[replace(@slub:ref, '#', '') = $id]"
-                                    mode="thesis:grantor"/>
-                        </cc:universityOrInstitution>
-                    </thesis:grantor>
-                </for-each>
-            </thesis:degree>
-        </if>
-    </template>
-
-    <template match="slub:corporation" mode="thesis:grantor">
-        <cc:place>
-            <value-of select="@place"/>
-        </cc:place>
-        <if test="slub:faculty|slub:department">
-            <cc:department>
-                <for-each select="slub:faculty|slub:department">
-                    <cc:name>
-                        <value-of select="."/>
-                    </cc:name>
-                </for-each>
-            </cc:department>
-        </if>
-    </template>
 
 </stylesheet>
