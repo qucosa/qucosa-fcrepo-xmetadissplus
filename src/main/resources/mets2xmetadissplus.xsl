@@ -426,6 +426,7 @@
             <when test="$type = 'issue'">PeriodicalPart</when>
             <when test="$type = 'lecture'">lecture</when>
             <when test="$type = 'magister_thesis'">masterThesis</when>
+            <when test="$type = 'master_thesis'">masterThesis</when>
             <when test="$type = 'monograph'">book</when>
             <when test="$type = 'musical_notation'">MusicalNotation</when>
             <when test="$type = 'paper'">StudyThesis</when>
