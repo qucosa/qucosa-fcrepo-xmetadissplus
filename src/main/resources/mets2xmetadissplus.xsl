@@ -115,6 +115,12 @@
         <apply-templates select="mods:language/mods:languageTerm[@authority='iso639-2b' and @type='code']"/>
 
         <!-- SKIP dc:relation -->
+        <!-- SKIP dc:isVersionOf -->
+        <!-- SKIP dc:hasVersion -->
+        <!-- SKIP dc:isReplacedBy -->
+        <!-- SKIP dc:replaces -->
+        <!-- SKIP dc:isRequiredBy -->
+        <!-- SKIP dc:requires -->
         <!-- SKIP dc:coverage -->
         <!-- SKIP dc:rights -->
 
