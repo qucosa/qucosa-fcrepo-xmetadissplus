@@ -124,6 +124,7 @@
 
         <!-- SKIP dc:isPartOf -->
         <apply-templates select="mods:relatedItem[@type='original']"/>
+        <apply-templates select="mods:relatedItem[@type='host']"/>
 
         <!-- SKIP dc:coverage -->
         <!-- SKIP dc:rights -->
@@ -385,6 +386,31 @@
                 <value-of select="$issn"/>
             </dcterms:isPartOf>
         </if>
+        <if test="string-length($urn)>0">
+            <dcterms:isPartOf xsi:type="dcterms:URI">
+                <value-of select="concat('http://nbn-resolving.de/', $urn)"/>
+            </dcterms:isPartOf>
+        </if>
+    </template>
+
+    <template match="mods:relatedItem[@type='host']">
+        <variable name="title" select="mods:titleInfo[1]/mods:title[1]"/>
+        <if test="string-length($title)>0">
+            <dcterms:isPartOf xsi:type="ddb:noScheme">
+                <value-of select="$title"/>
+                <variable name="volume" select="../mods:part[@type='volume'][1]/mods:detail/mods:number"/>
+                <if test="string-length($volume)>0">
+                    <value-of select="concat(' ; ', $volume)"/>
+                </if>
+            </dcterms:isPartOf>
+        </if>
+        <variable name="issn" select="mods:identifier[@type='issn']"/>
+        <if test="string-length($issn)>0">
+            <dcterms:isPartOf xsi:type="ddb:ISSN">
+                <value-of select="$issn"/>
+            </dcterms:isPartOf>
+        </if>
+        <variable name="urn" select="mods:identifier[@type='urn']"/>
         <if test="string-length($urn)>0">
             <dcterms:isPartOf xsi:type="dcterms:URI">
                 <value-of select="concat('http://nbn-resolving.de/', $urn)"/>
