@@ -96,7 +96,13 @@
         <apply-templates select="mods:identifier[@type='qucosa:urn']"/>
 
         <!-- SKIP dcterms:extend -->
-        <!-- SKIP dcterms:medium -->
+
+        <!-- dcterms:medium -->
+        <!--
+            HACK for bug in WinIBW xMetaDissPlus2Pica script.
+         -->
+        <dcterms:medium/>
+
         <!-- SKIP dcterms:bibliographicCitation -->
 
         <!-- dc:source -->
