@@ -66,6 +66,7 @@
         <apply-templates select="mods:titleInfo[not(@usage='primary')]/mods:subTitle"/>
         <!-- dc:creator -->
         <apply-templates select="mods:name[@type='personal' and mods:role/mods:roleTerm='aut']" mode="dc:creator"/>
+        <apply-templates select="mods:name[@type='personal' and mods:role/mods:roleTerm='cmp']" mode="dc:creator"/>
         <!-- dc:subject -->
         <apply-templates select="mods:classification"/>
         <!-- dcterms:tableOfContents -->
