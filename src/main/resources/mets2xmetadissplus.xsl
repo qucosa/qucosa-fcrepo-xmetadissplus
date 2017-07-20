@@ -72,8 +72,7 @@
         <!-- dc:publisher -->
         <apply-templates select="mods:name[@type='corporate' and @displayLabel='mapping-hack-default-publisher']"
                          mode="mapping-hack-default-publisher"/>
-        <apply-templates select="mods:name[@type='corporate' and mods:role/mods:roleTerm='pbl']"
-                         mode="dc:publisher"/>
+        <apply-templates select="mods:name[@type='corporate' and mods:role/mods:roleTerm='pbl']" mode="dc:publisher"/>
         <!-- dc:contributor -->
         <apply-templates select="mods:name[@type='personal' and (
                                     mods:role/mods:roleTerm='edt' or
@@ -176,8 +175,7 @@
                 <cc:name>
                     <value-of select="mods:namePart"/>
                 </cc:name>
-                <variable name="refid" select="@ID"/>
-                <variable name="corporation_node" select="//slub:corporation[@ref=$refid or @ref=concat('#', $refid)]"/>
+                <variable name="corporation_node" select="myfunc:referencingSlubCorporationElement(., @ID)"/>
                 <if test="$corporation_node">
                     <cc:place>
                         <value-of select="$corporation_node/@place"/>
@@ -188,8 +186,7 @@
     </template>
 
     <template match="mods:name[@type='corporate']" mode="mapping-hack-default-publisher">
-        <variable name="refid" select="@ID"/>
-        <variable name="corporation_node" select="//slub:corporation[@ref=$refid or @ref=concat('#', $refid)]"/>
+        <variable name="corporation_node" select="myfunc:referencingSlubCorporationElement(., @ID)"/>
         <if test="$corporation_node">
             <dc:publisher xsi:type="cc:Publisher">
                 <cc:universityOrInstitution>
@@ -404,14 +401,13 @@
                 <for-each select="mods:name[@type='corporate' and (
                      mods:role/mods:roleTerm[@type='code' and .='pbl'] or
                      mods:role/mods:roleTerm[@type='code' and .='dgg'])]">
-                    <variable name="id" select="@ID"/>
                     <thesis:grantor xsi:type="cc:Corporate">
                         <cc:universityOrInstitution>
                             <cc:name>
                                 <value-of select="mods:namePart"/>
                             </cc:name>
                             <apply-templates
-                                    select="../mods:extension/slub:info/slub:corporation[replace(@slub:ref, '#', '') = $id]"
+                                    select="myfunc:referencingSlubCorporationElement(., @ID)"
                                     mode="thesis:grantor"/>
                         </cc:universityOrInstitution>
                     </thesis:grantor>
@@ -498,6 +494,13 @@
              -->
             <otherwise>Other</otherwise>
         </choose>
+    </function>
+
+    <function name="myfunc:referencingSlubCorporationElement">
+        <param name="context"/>
+        <param name="refid" as="xs:string"/>
+        <sequence select="root($context)//slub:corporation[
+            @ref=$refid or @ref=concat('#', $refid) or @slub:ref=$refid or @slub:ref=concat('#', $refid)]"/>
     </function>
 
 </stylesheet>
