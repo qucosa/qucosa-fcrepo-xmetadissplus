@@ -121,6 +121,10 @@
         <!-- SKIP dc:replaces -->
         <!-- SKIP dc:isRequiredBy -->
         <!-- SKIP dc:requires -->
+
+        <!-- SKIP dc:isPartOf -->
+        <apply-templates select="mods:relatedItem[@type='original']"/>
+
         <!-- SKIP dc:coverage -->
         <!-- SKIP dc:rights -->
 
@@ -345,6 +349,47 @@
         <dc:source xsi:type="ddb:ISBN">
             <value-of select="."/>
         </dc:source>
+    </template>
+
+    <template match="mods:relatedItem[@type='original']">
+        <variable name="title" select="mods:titleInfo[1]/mods:title[1]"/>
+        <variable name="issn" select="mods:identifier[@type='issn']"/>
+        <variable name="urn" select="mods:identifier[@type='urn']"/>
+        <if test="string-length($title)>0">
+            <dcterms:isPartOf xsi:type="ddb:noScheme">
+                <value-of select="$title"/>
+                <variable name="volume" select="mods:part[@type='volume']/mods:detail/mods:number"/>
+                <variable name="issue" select="mods:part[@type='issue']/mods:detail/mods:number"/>
+                <variable name="year" select="mods:originInfo/mods:dateIssued"/>
+                <if test="string-length($volume)>0">
+                    <value-of select="concat($title, ' ', $volume, '(', $year, ')', $issue)"/>
+                </if>
+                <variable name="start" select="../mods:part[@type='section']/mods:extend[@unit='pages']/mods:start"/>
+                <if test="string-length($start)>0">
+                    <value-of select="concat(', S. ', $start)"/>
+                </if>
+                <variable name="end" select="../mods:part[@type='section']/mods:extend[@unit='pages']/mods:end"/>
+                <if test="string-length($end)>0">
+                    <value-of select="concat('-', $end)"/>
+                </if>
+                <if test="string-length($issn)>0">
+                    <value-of select="concat(', ISSN: ', $issn)"/>
+                </if>
+                <if test="string-length($urn)>0">
+                    <value-of select="concat(', URN: ', $urn)"/>
+                </if>
+            </dcterms:isPartOf>
+        </if>
+        <if test="string-length($issn)>0">
+            <dcterms:isPartOf xsi:type="ddb:ISSN">
+                <value-of select="$issn"/>
+            </dcterms:isPartOf>
+        </if>
+        <if test="string-length($urn)>0">
+            <dcterms:isPartOf xsi:type="dcterms:URI">
+                <value-of select="concat('http://nbn-resolving.de/', $urn)"/>
+            </dcterms:isPartOf>
+        </if>
     </template>
 
     <template match="mods:language/mods:languageTerm[@authority='iso639-2b' and @type='code']">
