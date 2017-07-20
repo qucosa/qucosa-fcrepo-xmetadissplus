@@ -61,6 +61,9 @@
     <template match="mods:mods">
         <!-- dc:title -->
         <apply-templates select="mods:titleInfo[@usage='primary']"/>
+        <!-- dcterms:alternative -->
+        <apply-templates select="mods:titleInfo[not(@usage='primary')]/mods:title" mode="alternative"/>
+        <apply-templates select="mods:titleInfo[not(@usage='primary')]/mods:subTitle"/>
         <!-- dc:creator -->
         <apply-templates select="mods:name[@type='personal' and mods:role/mods:roleTerm='aut']" mode="dc:creator"/>
         <!-- dc:subject -->
@@ -132,10 +135,34 @@
 
     <!-- individual METS/MODS element templates -->
 
-    <template match="mods:titleInfo">
-        <dc:title xsi:type="ddb:titleISO639-2" xml:lang="{@lang}">
-            <value-of select="mods:title"/>
+    <template match="mods:titleInfo/mods:title">
+        <dc:title xsi:type="ddb:titleISO639-2" xml:lang="{../@lang}">
+            <value-of select="."/>
         </dc:title>
+    </template>
+
+    <template match="mods:titleInfo/mods:title" mode="alternative">
+        <variable name="titleLanguage" select="../@lang"/>
+        <variable name="documentLanguage"
+                  select="/mets:mets//mods:mods/mods:language/mods:languageTerm[@type='code'][1]"/>
+        <dcterms:alternative xsi:type="ddb:titleISO639-2" xml:lang="{$titleLanguage}">
+            <if test="$titleLanguage != $documentLanguage">
+                <attribute name="ddb:type">translated</attribute>
+            </if>
+            <value-of select="."/>
+        </dcterms:alternative>
+    </template>
+
+    <template match="mods:titleInfo/mods:subTitle">
+        <variable name="titleLanguage" select="../@lang"/>
+        <variable name="documentLanguage"
+                  select="/mets:mets//mods:mods/mods:language/mods:languageTerm[@type='code'][1]"/>
+        <dcterms:alternative xsi:type="ddb:talternativeISO639-2" xml:lang="{$titleLanguage}">
+            <if test="$titleLanguage != $documentLanguage">
+                <attribute name="ddb:type">translated</attribute>
+            </if>
+            <value-of select="."/>
+        </dcterms:alternative>
     </template>
 
     <template match="mods:name[@type='personal']" mode="dc:creator">
