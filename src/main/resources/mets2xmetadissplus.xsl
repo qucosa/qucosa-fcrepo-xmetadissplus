@@ -124,7 +124,7 @@
 
         <!-- dc:isPartOf -->
         <apply-templates select="mods:relatedItem[@type='original']"/>
-        <apply-templates select="mods:relatedItem[@type='host']"/>
+        <apply-templates select="mods:relatedItem[@type='host' or @type='series']"/>
 
         <!-- SKIP dc:coverage -->
         <!-- SKIP dc:rights -->
@@ -387,7 +387,7 @@
         </if>
     </template>
 
-    <template match="mods:relatedItem[@type='host']">
+    <template match="mods:relatedItem[@type='host' or @type='series']">
         <variable name="title" select="mods:titleInfo[1]/mods:title[1]"/>
         <if test="string-length($title)>0">
             <dcterms:isPartOf xsi:type="ddb:noScheme">
