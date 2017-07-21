@@ -98,7 +98,7 @@
         <!-- dc:identifier -->
         <apply-templates select="mods:identifier" mode="dc:identifier"/>
 
-        <!-- SKIP dcterms:extend -->
+        <!-- SKIP dcterms:extent -->
 
         <!-- dcterms:medium -->
         <!--
@@ -359,11 +359,11 @@
                 <if test="string-length($volume)>0">
                     <value-of select="concat($title, ' ', $volume, '(', $year, ')', $issue)"/>
                 </if>
-                <variable name="start" select="../mods:part[@type='section']/mods:extend[@unit='pages']/mods:start"/>
+                <variable name="start" select="../mods:part[@type='section']/mods:extent[@unit='pages']/mods:start"/>
                 <if test="string-length($start)>0">
                     <value-of select="concat(', S. ', $start)"/>
                 </if>
-                <variable name="end" select="../mods:part[@type='section']/mods:extend[@unit='pages']/mods:end"/>
+                <variable name="end" select="../mods:part[@type='section']/mods:extent[@unit='pages']/mods:end"/>
                 <if test="string-length($end)>0">
                     <value-of select="concat('-', $end)"/>
                 </if>
