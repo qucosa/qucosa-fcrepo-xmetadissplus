@@ -122,7 +122,7 @@
         <!-- SKIP dc:isRequiredBy -->
         <!-- SKIP dc:requires -->
 
-        <!-- SKIP dc:isPartOf -->
+        <!-- dc:isPartOf -->
         <apply-templates select="mods:relatedItem[@type='original']"/>
         <apply-templates select="mods:relatedItem[@type='host']"/>
 
@@ -357,7 +357,7 @@
                 <variable name="issue" select="mods:part[@type='issue']/mods:detail/mods:number"/>
                 <variable name="year" select="mods:originInfo/mods:dateIssued"/>
                 <if test="string-length($volume)>0">
-                    <value-of select="concat($title, ' ', $volume, '(', $year, ')', $issue)"/>
+                    <value-of select="concat(' ', $volume, '(', $year, ')', $issue)"/>
                 </if>
                 <variable name="start" select="../mods:part[@type='section']/mods:extent[@unit='pages']/mods:start"/>
                 <if test="string-length($start)>0">
