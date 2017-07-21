@@ -96,7 +96,7 @@
         <!-- dini:version_driver -->
         <apply-templates select="mods:originInfo[@eventType='production']/mods:edition" mode="dini:version_driver"/>
         <!-- dc:identifier -->
-        <apply-templates select="mods:identifier[@type='qucosa:urn']"/>
+        <apply-templates select="mods:identifier" mode="dc:identifier"/>
 
         <!-- SKIP dcterms:extend -->
 
@@ -137,7 +137,7 @@
         <!-- Skip ddb:contact -->
 
         <!-- ddb:identifier -->
-        <apply-templates select="mods:identifier[@type]" mode="ddb:identifier"/>
+        <apply-templates select="mods:identifier" mode="ddb:identifier"/>
         <apply-templates select="/mets:mets/mets:amdSec//slub:info/slub:vgwortOpenKey" mode="ddb:identifier"/>
 
         <!-- ddb:rights -->
@@ -334,12 +334,6 @@
         </dini:version_driver>
     </template>
 
-    <template match="mods:identifier[@type='qucosa:urn']">
-        <dc:identifier xsi:type="urn:nbn">
-            <value-of select="."/>
-        </dc:identifier>
-    </template>
-
     <template match="mods:relatedItem[@type='otherFormat']/mods:location/mods:url">
         <dc:source xsi:type="dcterms:URI">
             <value-of select="."/>
@@ -424,16 +418,34 @@
         </dc:language>
     </template>
 
-    <template match="mods:identifier[@type='swb-ppn' or @type='qucosa:urn']" mode="ddb:identifier">
+    <template match="mods:identifier[@type]" mode="dc:identifier">
+        <variable name="xsitype">
+            <choose>
+                <when test="@type='qucosa:urn'">urn:nbn</when>
+                <when test="@type='isbn'">urn:isbn</when>
+                <otherwise/>
+            </choose>
+        </variable>
+        <if test="string-length($xsitype)>0">
+            <dc:identifier xsi:type="{$xsitype}">
+                <value-of select="."/>
+            </dc:identifier>
+        </if>
+    </template>
+
+    <template match="mods:identifier[@type]" mode="ddb:identifier">
         <variable name="ddbtype">
             <choose>
                 <when test="@type='swb-ppn'">Erstkat-ID</when>
                 <when test="@type='qucosa:urn'">URN</when>
+                <otherwise/>
             </choose>
         </variable>
-        <ddb:identifier ddb:type="{$ddbtype}">
-            <value-of select="."/>
-        </ddb:identifier>
+        <if test="string-length($ddbtype)>0">
+            <ddb:identifier ddb:type="{$ddbtype}">
+                <value-of select="."/>
+            </ddb:identifier>
+        </if>
     </template>
 
     <template match="slub:vgwortOpenKey" mode="ddb:identifier">
