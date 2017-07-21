@@ -572,6 +572,7 @@
             <when test="$type = 'diploma_thesis'">Diplom</when>
             <when test="$type = 'doctoral_thesis'">thesis.doctoral</when>
             <when test="$type = 'habilitation_thesis'">thesis.habilitation</when>
+            <when test="$type = 'master_thesis'">master</when>
             <when test="$type = 'magister_thesis'">M.A.</when>
             <otherwise>other</otherwise>
         </choose>
