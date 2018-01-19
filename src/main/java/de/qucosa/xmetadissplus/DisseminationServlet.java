@@ -36,9 +36,11 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.net.URI;
 
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
@@ -103,8 +105,14 @@ public class DisseminationServlet extends HttpServlet {
 
             try (CloseableHttpResponse response = httpClient.execute(new HttpGet(metsDocumentUri))) {
                 if (SC_OK == response.getStatusLine().getStatusCode()) {
-                    transform(response.getEntity().getContent(), resp.getOutputStream());
+
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    transform(response.getEntity().getContent(), byteArrayOutputStream);
+
                     resp.setStatus(SC_OK);
+                    resp.setContentType("application/xml");
+                    byteArrayOutputStream.writeTo(resp.getOutputStream());
+
                 } else {
                     sendError(resp, SC_NOT_FOUND, "Cannot obtain METS document at " + metsDocumentUri.toASCIIString());
                 }
