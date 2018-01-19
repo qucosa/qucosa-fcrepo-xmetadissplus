@@ -54,8 +54,9 @@ public class DisseminationServlet extends HttpServlet {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
+    private ThreadLocal<Transformer> threadLocalTransformer;
+
     private CloseableHttpClient httpClient;
-    private Transformer transformer;
 
     @Override
     public void init() throws ServletException {
@@ -64,8 +65,20 @@ public class DisseminationServlet extends HttpServlet {
                 .setConnectionManager(new PoolingHttpClientConnectionManager())
                 .build();
         try {
-            transformer = transformer(getClass().getResourceAsStream("/mets2xmetadissplus.xsl"));
-        } catch (TransformerConfigurationException e) {
+
+            threadLocalTransformer = new ThreadLocal<Transformer>() {
+                @Override
+                public Transformer initialValue() {
+                    final InputStream inputStream = getClass().getResourceAsStream("/mets2xmetadissplus.xsl");
+                    try {
+                        return TransformerFactory.newInstance().newTransformer(new StreamSource(inputStream));
+                    } catch (TransformerConfigurationException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            };
+
+        } catch (Exception e) {
             log.error("Could not initialize XSLT transformer", e);
             throw new ServletException(e);
         }
@@ -111,12 +124,8 @@ public class DisseminationServlet extends HttpServlet {
         resp.getWriter().print(msg);
     }
 
-    private Transformer transformer(InputStream stylesheet) throws TransformerConfigurationException {
-        return TransformerFactory.newInstance().newTransformer(new StreamSource(stylesheet));
-    }
-
     private void transform(InputStream in, OutputStream out) throws TransformerException {
-        transformer.transform(new StreamSource(in), new StreamResult(out));
+        threadLocalTransformer.get().transform(new StreamSource(in), new StreamResult(out));
     }
 
     private String getParameterValue(ServletConfig config, String name) {
