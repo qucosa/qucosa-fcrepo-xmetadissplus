@@ -40,13 +40,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringWriter;
 import java.net.URI;
 
-import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static javax.servlet.http.HttpServletResponse.*;
 
 public class DisseminationServlet extends HttpServlet {
 
@@ -58,14 +54,19 @@ public class DisseminationServlet extends HttpServlet {
 
     private ThreadLocal<Transformer> threadLocalTransformer;
 
-    private CloseableHttpClient httpClient;
+    private ThreadLocal<CloseableHttpClient> threadLocalHttpClient;
 
     @Override
     public void init() throws ServletException {
-        httpClient = HttpClientBuilder
-                .create()
-                .setConnectionManager(new PoolingHttpClientConnectionManager())
-                .build();
+        threadLocalHttpClient = new ThreadLocal<CloseableHttpClient>() {
+            @Override
+            protected CloseableHttpClient initialValue() {
+                return HttpClientBuilder.create()
+                        .setConnectionManager(new PoolingHttpClientConnectionManager())
+                        .build();
+            }
+        };
+
         try {
 
             threadLocalTransformer = new ThreadLocal<Transformer>() {
@@ -81,7 +82,7 @@ public class DisseminationServlet extends HttpServlet {
             };
 
         } catch (Exception e) {
-            log.error("Could not initialize XSLT transformer", e);
+            log.error("Could not initialize dissemination", e);
             throw new ServletException(e);
         }
     }
@@ -89,7 +90,7 @@ public class DisseminationServlet extends HttpServlet {
     @Override
     public void destroy() {
         try {
-            httpClient.close();
+            threadLocalHttpClient.get().close();
         } catch (IOException e) {
             log.warn("Problem closing HTTP client: " + e.getMessage());
         }
@@ -103,7 +104,7 @@ public class DisseminationServlet extends HttpServlet {
             final boolean transferUrlPidencode = isParameterSet(getServletConfig(), PARAM_TRANSFER_URL_PIDENCODE);
             final URI metsDocumentUri = URI.create(getRequiredRequestParameterValue(req, REQUEST_PARAM_METS_URL));
 
-            try (CloseableHttpResponse response = httpClient.execute(new HttpGet(metsDocumentUri))) {
+            try (CloseableHttpResponse response = threadLocalHttpClient.get().execute(new HttpGet(metsDocumentUri))) {
                 if (SC_OK == response.getStatusLine().getStatusCode()) {
 
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
