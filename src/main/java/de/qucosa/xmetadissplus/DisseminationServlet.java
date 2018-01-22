@@ -24,7 +24,6 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServlet;
@@ -47,8 +46,6 @@ import static javax.servlet.http.HttpServletResponse.*;
 public class DisseminationServlet extends HttpServlet {
 
     private static final String REQUEST_PARAM_METS_URL = "metsurl";
-    private static final String PARAM_TRANSFER_URL_PATTERN = "transfer.url.pattern";
-    private static final String PARAM_TRANSFER_URL_PIDENCODE = "transfer.url.pidencode";
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -97,11 +94,8 @@ public class DisseminationServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
-            final String transferUrlPattern = getParameterValue(getServletConfig(), PARAM_TRANSFER_URL_PATTERN);
-            final boolean transferUrlPidencode = isParameterSet(getServletConfig(), PARAM_TRANSFER_URL_PIDENCODE);
             final URI metsDocumentUri = URI.create(getRequiredRequestParameterValue(req, REQUEST_PARAM_METS_URL));
 
             try (CloseableHttpResponse response = threadLocalHttpClient.get().execute(new HttpGet(metsDocumentUri))) {
@@ -137,14 +131,6 @@ public class DisseminationServlet extends HttpServlet {
         threadLocalTransformer.get().transform(new StreamSource(in), new StreamResult(out));
     }
 
-    private String getParameterValue(ServletConfig config, String name) {
-        String v = config.getServletContext().getInitParameter(name);
-        if (v == null || v.isEmpty()) {
-            v = System.getProperty(name);
-        }
-        return v;
-    }
-
     private String getRequiredRequestParameterValue(ServletRequest request, String name)
             throws MissingRequiredParameter {
         final String v = request.getParameter(name);
@@ -152,17 +138,6 @@ public class DisseminationServlet extends HttpServlet {
             throw new MissingRequiredParameter("Missing parameter '" + REQUEST_PARAM_METS_URL + "'");
         }
         return v;
-    }
-
-    private boolean isParameterSet(ServletConfig config, String name) {
-        boolean b;
-        String p = config.getServletContext().getInitParameter(name);
-        if (p == null || p.isEmpty()) {
-            b = (System.getProperty(name) != null);
-        } else {
-            b = !p.isEmpty();
-        }
-        return b;
     }
 
 }
