@@ -295,10 +295,22 @@
         </dcterms:dateSubmitted>
     </template>
 
+    <template match="mods:dateOther[@type='submission' and (not(text()) or (normalize-space(.)=''))]">
+        <comment>dcterms:issued could not be created, missing value in mods:dateOther[@type='submission']</comment>
+    </template>
+
     <template match="mods:dateOther[@type='defense']">
         <dcterms:dateAccepted xsi:type="dcterms:W3CDTF">
             <value-of select="myfunc:formatDateTime(.)"/>
         </dcterms:dateAccepted>
+    </template>
+
+    <template match="mods:dateOther[@type='defense' and (not(text()) or (normalize-space(.)=''))]">
+        <comment>dcterms:issued could not be created, missing value in mods:dateOther[@type='defense']</comment>
+    </template>
+
+    <template match="mods:dateIssued[not(text()) or (normalize-space(.)='')]">
+        <comment>dcterms:issued could not be created, missing value in mods:dateIssued</comment>
     </template>
 
     <template match="mods:dateIssued">
@@ -311,6 +323,10 @@
         <dcterms:modified xsi:type="dcterms:W3CDTF">
             <value-of select="myfunc:formatDateTime(.)"/>
         </dcterms:modified>
+    </template>
+
+    <template match="mets:metsHdr[@LASTMODDATE and (not(text()) or (normalize-space(.)=''))]">
+        <comment>dcterms:modified could not be created, missing value in mets:metsHdr[@LASTMODDATE]</comment>
     </template>
 
     <template match="mets:structMap[@TYPE='LOGICAL']/mets:div/@TYPE">
