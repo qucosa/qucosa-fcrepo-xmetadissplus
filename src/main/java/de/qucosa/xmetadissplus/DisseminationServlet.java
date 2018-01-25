@@ -41,7 +41,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 
-import static javax.servlet.http.HttpServletResponse.*;
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 public class DisseminationServlet extends HttpServlet {
 
@@ -51,18 +54,13 @@ public class DisseminationServlet extends HttpServlet {
 
     private ThreadLocal<Transformer> threadLocalTransformer;
 
-    private ThreadLocal<CloseableHttpClient> threadLocalHttpClient;
+    private CloseableHttpClient closeableHttpClient;
 
     @Override
     public void init() throws ServletException {
-        threadLocalHttpClient = new ThreadLocal<CloseableHttpClient>() {
-            @Override
-            protected CloseableHttpClient initialValue() {
-                return HttpClientBuilder.create()
+        closeableHttpClient = HttpClientBuilder.create()
                         .setConnectionManager(new PoolingHttpClientConnectionManager())
                         .build();
-            }
-        };
 
         try {
 
@@ -87,7 +85,7 @@ public class DisseminationServlet extends HttpServlet {
     @Override
     public void destroy() {
         try {
-            threadLocalHttpClient.get().close();
+            closeableHttpClient.close();
         } catch (IOException e) {
             log.warn("Problem closing HTTP client: " + e.getMessage());
         }
@@ -98,7 +96,7 @@ public class DisseminationServlet extends HttpServlet {
         try {
             final URI metsDocumentUri = URI.create(getRequiredRequestParameterValue(req, REQUEST_PARAM_METS_URL));
 
-            try (CloseableHttpResponse response = threadLocalHttpClient.get().execute(new HttpGet(metsDocumentUri))) {
+            try (CloseableHttpResponse response = closeableHttpClient.execute(new HttpGet(metsDocumentUri))) {
                 if (SC_OK == response.getStatusLine().getStatusCode()) {
 
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
