@@ -16,6 +16,10 @@
 
 package de.qucosa.xmetadissplus;
 
+import org.apache.commons.pool2.BasePooledObjectFactory;
+import org.apache.commons.pool2.PooledObject;
+import org.apache.commons.pool2.impl.DefaultPooledObject;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -24,14 +28,11 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
@@ -41,7 +42,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 
-import static javax.servlet.http.HttpServletResponse.*;
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 public class DisseminationServlet extends HttpServlet {
 
@@ -49,45 +53,33 @@ public class DisseminationServlet extends HttpServlet {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    private ThreadLocal<Transformer> threadLocalTransformer;
-
-    private ThreadLocal<CloseableHttpClient> threadLocalHttpClient;
+    private CloseableHttpClient closeableHttpClient;
+    private GenericObjectPool<Transformer> transformerPool;
 
     @Override
-    public void init() throws ServletException {
-        threadLocalHttpClient = new ThreadLocal<CloseableHttpClient>() {
-            @Override
-            protected CloseableHttpClient initialValue() {
-                return HttpClientBuilder.create()
+    public void init() {
+        closeableHttpClient = HttpClientBuilder.create()
                         .setConnectionManager(new PoolingHttpClientConnectionManager())
                         .build();
+
+        transformerPool = new GenericObjectPool<>(new BasePooledObjectFactory<Transformer>() {
+            @Override
+            public Transformer create() throws Exception {
+                StreamSource source = new StreamSource(getClass().getResourceAsStream("/mets2xmetadissplus.xsl"));
+                return TransformerFactory.newInstance().newTransformer(source);
             }
-        };
 
-        try {
-
-            threadLocalTransformer = new ThreadLocal<Transformer>() {
-                @Override
-                public Transformer initialValue() {
-                    final InputStream inputStream = getClass().getResourceAsStream("/mets2xmetadissplus.xsl");
-                    try {
-                        return TransformerFactory.newInstance().newTransformer(new StreamSource(inputStream));
-                    } catch (TransformerConfigurationException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            };
-
-        } catch (Exception e) {
-            log.error("Could not initialize dissemination", e);
-            throw new ServletException(e);
-        }
+            @Override
+            public PooledObject<Transformer> wrap(Transformer transformer) {
+                return new DefaultPooledObject<>(transformer);
+            }
+        });
     }
 
     @Override
     public void destroy() {
         try {
-            threadLocalHttpClient.get().close();
+            closeableHttpClient.close();
         } catch (IOException e) {
             log.warn("Problem closing HTTP client: " + e.getMessage());
         }
@@ -98,7 +90,7 @@ public class DisseminationServlet extends HttpServlet {
         try {
             final URI metsDocumentUri = URI.create(getRequiredRequestParameterValue(req, REQUEST_PARAM_METS_URL));
 
-            try (CloseableHttpResponse response = threadLocalHttpClient.get().execute(new HttpGet(metsDocumentUri))) {
+            try (CloseableHttpResponse response = closeableHttpClient.execute(new HttpGet(metsDocumentUri))) {
                 if (SC_OK == response.getStatusLine().getStatusCode()) {
 
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -127,8 +119,10 @@ public class DisseminationServlet extends HttpServlet {
         resp.getWriter().print(msg);
     }
 
-    private void transform(InputStream in, OutputStream out) throws TransformerException {
-        threadLocalTransformer.get().transform(new StreamSource(in), new StreamResult(out));
+    private void transform(InputStream in, OutputStream out) throws Exception {
+        Transformer transformer = transformerPool.borrowObject();
+        transformer.transform(new StreamSource(in), new StreamResult(out));
+        transformerPool.returnObject(transformer);
     }
 
     private String getRequiredRequestParameterValue(ServletRequest request, String name)
