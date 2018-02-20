@@ -124,7 +124,7 @@
         <!-- SKIP dc:isRequiredBy -->
         <!-- SKIP dc:requires -->
 
-        <!-- dcterms:isPartOf / dc:source-->
+        <!-- dcterms:isPartOf / dc:source -->
         <apply-templates select="mods:relatedItem[@type='original']"/>
         <apply-templates select="mods:relatedItem[@type='host' or @type='series']"/>
 
@@ -370,98 +370,45 @@
         <variable name="urn" select="mods:identifier[@type='urn']"/>
         <variable name="note" select="mods:note[@type='z']"/>
 
-        <!-- Case 1: no identifier(issn), no single entries(title,..) -> Take Entry from mods:note -> map to dc:source (no identifer given) -->
-        <if test="string-length($title)=0 and string-length($issn)=0 and string-length($note)>0">
-            <dc:source xsi:type="ddb:noScheme">
-                <value-of select="$note"/>
-            </dc:source>
-        </if>
-
-        <!-- Case 2: single entries given but no identifier (issn) -> map to dc:source -->
-        <if test="string-length($issn)=0">
-            <if test="string-length($title)>0">
-                <dc:source xsi:type="ddb:noScheme">
-                    <value-of select="$title"/>
-                    <variable name="volume" select="mods:part[@type='volume']/mods:detail/mods:number"/>
-                    <variable name="issue" select="mods:part[@type='issue']/mods:detail/mods:number"/>
-                    <variable name="year" select="mods:originInfo/mods:dateIssued"/>
-                    <if test="string-length($volume)>0">
-                        <value-of select="concat(' ', $volume, '(', $year, ')', $issue)"/>
-                    </if>
-                    <variable name="start" select="../mods:part[@type='section']/mods:extent[@unit='pages']/mods:start"/>
-                    <if test="string-length($start)>0">
-                        <value-of select="concat(', S. ', $start)"/>
-                    </if>
-                    <variable name="end" select="../mods:part[@type='section']/mods:extent[@unit='pages']/mods:end"/>
-                    <if test="string-length($end)>0">
-                        <value-of select="concat('-', $end)"/>
-                    </if>
-                    <if test="string-length($issn)>0">
-                        <value-of select="concat(', ISSN: ', $issn)"/>
-                    </if>
-                    <if test="string-length($urn)>0">
-                        <value-of select="concat(', URN: ', $urn)"/>
-                    </if>
-                </dc:source>
-                <if test="string-length($urn)>0">
-                    <dc:source xsi:type="dcterms:URI">
-                        <value-of select="concat('http://nbn-resolving.de/', $urn)"/>
-                    </dc:source>
-                </if>
-            </if>
-        </if>
-
-        <!-- Case 3: single entries including identifier (issn) given -> map to dcterms:isPartOf -->
-        <if test="string-length($issn)>0">
-            <if test="string-length($title)>0">
+        <if test="string-length($title)>0">
+            <dcterms:isPartOf xsi:type="ddb:noScheme">
+                <value-of select="$title"/>
                 <variable name="volume" select="mods:part[@type='volume']/mods:detail/mods:number"/>
                 <variable name="issue" select="mods:part[@type='issue']/mods:detail/mods:number"/>
                 <variable name="year" select="mods:originInfo/mods:dateIssued"/>
-
-                <dcterms:isPartOf xsi:type="ddb:ZSTitelID">
-                    <value-of select="$issn"/>
-                </dcterms:isPartOf>
                 <if test="string-length($volume)>0">
-                    <dcterms:isPartOf xsi:type="ddb:ZS-Volume">
-                        <value-of select="$volume"/>
-                    </dcterms:isPartOf>
+                    <value-of select="concat(' ', $volume, '(', $year, ')', $issue)"/>
                 </if>
-                <if test="string-length($issue)>0">
-                    <dcterms:isPartOf xsi:type="ddb:ZS-Issue">
-                        <value-of select="$issue"/>
-                    </dcterms:isPartOf>
+                <variable name="start" select="../mods:part[@type='section']/mods:extent[@unit='pages']/mods:start"/>
+                <if test="string-length($start)>0">
+                    <value-of select="concat(', S. ', $start)"/>
                 </if>
-                <dcterms:isPartOf xsi:type="ddb:ZS-Ausgabe">
-                    <value-of select="$title"/>
-                    <if test="string-length($volume)>0">
-                        <value-of select="concat(' ', $volume, '(', $year, ')', $issue)"/>
-                    </if>
-                    <variable name="start" select="../mods:part[@type='section']/mods:extent[@unit='pages']/mods:start"/>
-                    <if test="string-length($start)>0">
-                        <value-of select="concat(', S. ', $start)"/>
-                    </if>
-                    <variable name="end" select="../mods:part[@type='section']/mods:extent[@unit='pages']/mods:end"/>
-                    <if test="string-length($end)>0">
-                        <value-of select="concat('-', $end)"/>
-                    </if>
-                    <if test="string-length($issn)>0">
-                        <value-of select="concat(', ISSN: ', $issn)"/>
-                    </if>
-                    <if test="string-length($urn)>0">
-                        <value-of select="concat(', URN: ', $urn)"/>
-                    </if>
-                </dcterms:isPartOf>
-            </if>
-
+                <variable name="end" select="../mods:part[@type='section']/mods:extent[@unit='pages']/mods:end"/>
+                <if test="string-length($end)>0">
+                    <value-of select="concat('-', $end)"/>
+                </if>
+                <if test="string-length($issn)>0">
+                    <value-of select="concat(', ISSN: ', $issn)"/>
+                </if>
+                <if test="string-length($urn)>0">
+                    <value-of select="concat(', URN: ', $urn)"/>
+                </if>
+            </dcterms:isPartOf>
+        </if>
+        <if test="string-length($issn)>0">
             <dcterms:isPartOf xsi:type="ddb:ISSN">
                 <value-of select="$issn"/>
             </dcterms:isPartOf>
-
-            <if test="string-length($urn)>0">
-                <dcterms:isPartOf xsi:type="dcterms:URI">
-                    <value-of select="concat('http://nbn-resolving.de/', $urn)"/>
-                </dcterms:isPartOf>
-            </if>
+        </if>
+        <if test="string-length($urn)>0">
+            <dcterms:isPartOf xsi:type="dcterms:URI">
+                <value-of select="concat('http://nbn-resolving.de/', $urn)"/>
+            </dcterms:isPartOf>
+        </if>
+        <if test="string-length($note)>0">
+            <dc:source xsi:type="ddb:noScheme">
+                <value-of select="$note"/>
+            </dc:source>
         </if>
     </template>
 
