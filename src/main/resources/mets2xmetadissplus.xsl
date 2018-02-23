@@ -91,6 +91,9 @@
         <apply-templates select="mods:originInfo[@eventType='publication']/mods:dateOther[@type='defense']"/>
         <!-- dcterms:issued -->
         <apply-templates select="mods:originInfo[@eventType='distribution']/mods:dateIssued"/>
+        <!-- dcterms:created -->
+        <apply-templates select="mods:originInfo[@eventType='publication']/mods:dateIssued"/>
+
         <!-- dcterms:modified -->
         <apply-templates select="/mets:mets/mets:metsHdr/@LASTMODDATE"/>
         <!-- dc:type -->
@@ -311,14 +314,24 @@
         <comment>dcterms:dateAccepted could not be created, missing value in mods:dateOther[@type='defense']</comment>
     </template>
 
-    <template match="mods:dateIssued">
+    <template match="mods:originInfo[@eventType='distribution']/mods:dateIssued">
         <dcterms:issued xsi:type="dcterms:W3CDTF">
             <value-of select="myfunc:formatDateTime(.)"/>
         </dcterms:issued>
     </template>
 
-    <template match="mods:dateIssued[not(text()) or (normalize-space(.)='')]">
-        <comment>dcterms:issued could not be created, missing value in mods:dateIssued</comment>
+    <template match="mods:originInfo[@eventType='distribution']/mods:dateIssued[not(text()) or (normalize-space(.)='')]">
+        <comment>dcterms:issued could not be created, missing value in mods:originInfo[@eventType='distribution']/mods:dateIssued</comment>
+    </template>
+
+    <template match="mods:originInfo[@eventType='publication']/mods:dateIssued">
+        <dcterms:created xsi:type="dcterms:W3CDTF">
+            <value-of select="myfunc:formatDateTime(.)"/>
+        </dcterms:created>
+    </template>
+
+    <template match="mods:originInfo[@eventType='publication']/mods:dateIssued[not(text()) or (normalize-space(.)='')]">
+        <comment>dcterms:created could not be created, missing value in mods:originInfo[@eventType='publication']/mods:dateIssued</comment>
     </template>
 
     <template match="mets:metsHdr/@LASTMODDATE">
