@@ -77,20 +77,25 @@
         <!-- dc:publisher -->
         <apply-templates select="mods:name[@type='corporate' and @displayLabel='mapping-hack-default-publisher']"
                          mode="mapping-hack-default-publisher"/>
-        <apply-templates select="mods:name[@type='corporate' and mods:role/mods:roleTerm='pbl']" mode="dc:publisher"/>
+        <apply-templates select="mods:name[@type='corporate' and (mods:role/mods:roleTerm='pbl' or mods:role/mods:roleTerm='edt')]" mode="dc:publisher"/>
         <!-- dc:contributor -->
-        <apply-templates select="mods:name[@type='personal' and (
+        <apply-templates select="mods:name[(@type='personal') and (
                                     mods:role/mods:roleTerm='edt' or
                                     mods:role/mods:roleTerm='rev' or
                                     mods:role/mods:roleTerm='sad' or
                                     mods:role/mods:roleTerm='ths' or
-                                    mods:role/mods:roleTerm='pbl')]" mode="dc:contributor"/>
+                                    mods:role/mods:roleTerm='pbl' or
+                                    mods:role/mods:roleTerm='dgs')]" mode="dc:contributor"/>
+
         <!-- dcterms:dateSubmitted -->
         <apply-templates select="mods:originInfo[@eventType='publication']/mods:dateOther[@type='submission']"/>
         <!-- dcterms:dateAccepted -->
         <apply-templates select="mods:originInfo[@eventType='publication']/mods:dateOther[@type='defense']"/>
         <!-- dcterms:issued -->
-        <apply-templates select="mods:originInfo[@eventType='distribution']/mods:dateIssued"/>
+        <apply-templates select="mods:originInfo[@eventType='distribution']/mods:dateIssued" mode="dcterms:issued"/>
+        <!-- dcterms:created -->
+        <apply-templates select="mods:originInfo[@eventType='publication']/mods:dateIssued" mode="dcterms:created"/>
+
         <!-- dcterms:modified -->
         <apply-templates select="/mets:mets/mets:metsHdr/@LASTMODDATE"/>
         <!-- dc:type -->
@@ -195,19 +200,21 @@
     </template>
 
     <template match="mods:name[@type='personal']" mode="dc:contributor">
-        <dc:contributor xsi:type="pc:Contributor"
-                        thesis:role="{myfunc:thesisRole(mods:role/mods:roleTerm[@type='code'])}">
-            <pc:person>
-                <pc:name type="nameUsedByThePerson">
-                    <pc:foreName>
-                        <value-of select="mods:namePart[@type='given']"/>
-                    </pc:foreName>
-                    <pc:surName>
-                        <value-of select="mods:namePart[@type='family']"/>
-                    </pc:surName>
-                </pc:name>
-            </pc:person>
-        </dc:contributor>
+        <for-each select="mods:role/mods:roleTerm[@type='code']">
+            <dc:contributor xsi:type="pc:Contributor"
+                            thesis:role="{myfunc:thesisRole(.)}">
+                <pc:person>
+                    <pc:name type="nameUsedByThePerson">
+                        <pc:foreName>
+                            <value-of select="../../mods:namePart[@type='given']"/>
+                        </pc:foreName>
+                        <pc:surName>
+                            <value-of select="../../mods:namePart[@type='family']"/>
+                        </pc:surName>
+                    </pc:name>
+                </pc:person>
+            </dc:contributor>
+        </for-each>
     </template>
 
     <template match="mods:name[@type='corporate']" mode="dc:publisher">
@@ -311,14 +318,24 @@
         <comment>dcterms:dateAccepted could not be created, missing value in mods:dateOther[@type='defense']</comment>
     </template>
 
-    <template match="mods:dateIssued">
+    <template match="mods:dateIssued" mode="dcterms:issued">
         <dcterms:issued xsi:type="dcterms:W3CDTF">
             <value-of select="myfunc:formatDateTime(.)"/>
         </dcterms:issued>
     </template>
 
-    <template match="mods:dateIssued[not(text()) or (normalize-space(.)='')]">
-        <comment>dcterms:issued could not be created, missing value in mods:dateIssued</comment>
+    <template match="mods:dateIssued[not(text()) or (normalize-space(.)='')]" mode="dcterms:issued">
+        <comment>dcterms:issued could not be created, missing value in mods:originInfo[@eventType='distribution']/mods:dateIssued</comment>
+    </template>
+
+    <template match="mods:dateIssued" mode="dcterms:created">
+        <dcterms:created xsi:type="dcterms:W3CDTF">
+            <value-of select="myfunc:formatDateTime(.)"/>
+        </dcterms:created>
+    </template>
+
+    <template match="mods:dateIssued[not(text()) or (normalize-space(.)='')]" mode="dcterms:created">
+        <comment>dcterms:created could not be created, missing value in mods:originInfo[@eventType='publication']/mods:dateIssued</comment>
     </template>
 
     <template match="mets:metsHdr/@LASTMODDATE">
@@ -585,6 +602,7 @@
             <when test="$role = 'sad'">advisor</when>
             <when test="$role = 'ths'">advisor</when>
             <when test="$role = 'pbl'">editor</when>
+            <when test="$role = 'dgs'">advisor</when>
             <otherwise>
                 <message terminate="yes" xml:space="preserve">ERROR: Referenced contributor role is not defined for xMetaDissPlus.</message>
             </otherwise>
