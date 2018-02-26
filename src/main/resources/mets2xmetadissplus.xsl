@@ -79,14 +79,13 @@
                          mode="mapping-hack-default-publisher"/>
         <apply-templates select="mods:name[@type='corporate' and (mods:role/mods:roleTerm='pbl' or mods:role/mods:roleTerm='edt')]" mode="dc:publisher"/>
         <!-- dc:contributor -->
-        <apply-templates select="mods:name[(@type='personal') and (
+        <apply-templates select="mods:name[@type='personal' and (
                                     mods:role/mods:roleTerm='edt' or
                                     mods:role/mods:roleTerm='rev' or
                                     mods:role/mods:roleTerm='sad' or
                                     mods:role/mods:roleTerm='ths' or
                                     mods:role/mods:roleTerm='pbl' or
                                     mods:role/mods:roleTerm='dgs')]" mode="dc:contributor"/>
-
         <!-- dcterms:dateSubmitted -->
         <apply-templates select="mods:originInfo[@eventType='publication']/mods:dateOther[@type='submission']"/>
         <!-- dcterms:dateAccepted -->
@@ -201,19 +200,21 @@
 
     <template match="mods:name[@type='personal']" mode="dc:contributor">
         <for-each select="mods:role/mods:roleTerm[@type='code']">
-            <dc:contributor xsi:type="pc:Contributor"
-                            thesis:role="{myfunc:thesisRole(.)}">
-                <pc:person>
-                    <pc:name type="nameUsedByThePerson">
-                        <pc:foreName>
-                            <value-of select="../../mods:namePart[@type='given']"/>
-                        </pc:foreName>
-                        <pc:surName>
-                            <value-of select="../../mods:namePart[@type='family']"/>
-                        </pc:surName>
-                    </pc:name>
-                </pc:person>
-            </dc:contributor>
+            <if test="myfunc:thesisRole(.) != 'error'">
+                <dc:contributor xsi:type="pc:Contributor"
+                                thesis:role="{myfunc:thesisRole(.)}">
+                    <pc:person>
+                        <pc:name type="nameUsedByThePerson">
+                            <pc:foreName>
+                                <value-of select="../../mods:namePart[@type='given']"/>
+                            </pc:foreName>
+                            <pc:surName>
+                                <value-of select="../../mods:namePart[@type='family']"/>
+                            </pc:surName>
+                        </pc:name>
+                    </pc:person>
+                </dc:contributor>
+            </if>
         </for-each>
     </template>
 
@@ -603,9 +604,7 @@
             <when test="$role = 'ths'">advisor</when>
             <when test="$role = 'pbl'">editor</when>
             <when test="$role = 'dgs'">advisor</when>
-            <otherwise>
-                <message terminate="yes" xml:space="preserve">ERROR: Referenced contributor role is not defined for xMetaDissPlus.</message>
-            </otherwise>
+            <otherwise>error</otherwise>
         </choose>
     </function>
 
