@@ -133,7 +133,9 @@
         <apply-templates select="mods:relatedItem[@type='host' or @type='series']"/>
 
         <!-- SKIP dc:coverage -->
-        <!-- SKIP dc:rights -->
+
+        <!-- dc:rights for documents with collection "nonOA"-->
+        <apply-templates select="//slub:info/slub:collections"/>
 
         <!-- thesis:degree -->
         <call-template name="thesisDegreeElement">
@@ -495,6 +497,12 @@
         <ddb:identifier ddb:type="VG-Wort-Pixel">
             <value-of select="."/>
         </ddb:identifier>
+    </template>
+
+    <template match="slub:collections/slub:collection[.='nonOA']">
+        <dc:rights xsi:type="ddb:noScheme">
+            <value-of select="." />
+        </dc:rights>
     </template>
 
     <!-- eat all unmatched text content -->
