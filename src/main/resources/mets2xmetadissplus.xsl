@@ -134,8 +134,8 @@
 
         <!-- SKIP dc:coverage -->
 
-        <!-- dc:rights for documents with collection "nonOA"-->
-        <apply-templates select="//slub:info/slub:collections"/>
+        <!-- dc:rights -->
+        <apply-templates select="/mets:mets/mets:amdSec//slub:info" mode="dc:rights"/>
 
         <!-- thesis:degree -->
         <call-template name="thesisDegreeElement">
@@ -499,10 +499,12 @@
         </ddb:identifier>
     </template>
 
-    <template match="slub:collections/slub:collection[.='nonOA']">
-        <dc:rights xsi:type="ddb:noScheme">
-            <value-of select="." />
-        </dc:rights>
+    <template match="slub:info[slub:collections/slub:collection='nonOA']" mode="dc:rights">
+        <dc:rights xsi:type="ddb:noScheme">info:eu-repo/semantics/restrictedAccess</dc:rights>
+    </template>
+
+    <template match="slub:info[not(slub:collections/slub:collection = 'nonOA')]" mode="dc:rights">
+        <dc:rights xsi:type="ddb:noScheme">info:eu-repo/semantics/openAccess</dc:rights>
     </template>
 
     <!-- eat all unmatched text content -->
