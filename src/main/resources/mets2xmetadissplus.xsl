@@ -120,7 +120,8 @@
         <!-- dc:language -->
         <apply-templates select="mods:language/mods:languageTerm[@authority='iso639-2b' and @type='code']"/>
 
-        <!-- SKIP dc:relation -->
+        <!-- dc:relation -->
+        <apply-templates select="//slub:info" mode="dc:relation"/>
         <!-- SKIP dc:isVersionOf -->
         <!-- SKIP dc:hasVersion -->
         <!-- SKIP dc:isReplacedBy -->
@@ -503,6 +504,17 @@
         <dc:rights xsi:type="ddb:noScheme">
             <value-of select="." />
         </dc:rights>
+    </template>
+
+    <template match="slub:info" mode="dc:relation">
+        <variable name="Funder" select="./slub:juristiction"/>
+        <variable name="FundingProgram" select="./slub:funding"/>
+        <variable name="ProjectID" select="./slub:project/@uid"/>
+        <if test="$Funder != '' and $FundingProgram != '' and $ProjectID != ''">
+            <dc:relation xsi:type="ddb:noScheme">
+                info:eu-repo/grantAgreement/<value-of select="$Funder"/>/<value-of select="$FundingProgram"/>/<value-of select="$ProjectID"/>
+            </dc:relation>
+        </if>
     </template>
 
     <!-- eat all unmatched text content -->
