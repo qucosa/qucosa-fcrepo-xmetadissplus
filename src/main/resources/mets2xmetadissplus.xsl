@@ -303,53 +303,68 @@
     </template>
 
     <template match="mods:dateOther[@type='submission']">
-        <dcterms:dateSubmitted xsi:type="dcterms:W3CDTF">
-            <value-of select="myfunc:formatDateTime(.)"/>
-        </dcterms:dateSubmitted>
-    </template>
-
-    <template match="mods:dateOther[@type='submission' and (not(text()) or (normalize-space(.)=''))]">
-        <comment>dcterms:dateSubmitted could not be created, missing value in mods:dateOther[@type='submission']</comment>
+        <choose>
+            <when test="string-length(normalize-space(.)) = 0">
+                <comment>dcterms:dateSubmitted could not be created, missing value in mods:dateOther[@type='submission']</comment>
+            </when>
+            <otherwise>
+                <dcterms:dateSubmitted xsi:type="dcterms:W3CDTF">
+                    <value-of select="myfunc:formatDateTime(.)"/>
+                </dcterms:dateSubmitted>
+            </otherwise>
+        </choose>
     </template>
 
     <template match="mods:dateOther[@type='defense']">
-        <dcterms:dateAccepted xsi:type="dcterms:W3CDTF">
-            <value-of select="myfunc:formatDateTime(.)"/>
-        </dcterms:dateAccepted>
-    </template>
-
-    <template match="mods:dateOther[@type='defense' and (not(text()) or (normalize-space(.)=''))]">
-        <comment>dcterms:dateAccepted could not be created, missing value in mods:dateOther[@type='defense']</comment>
+        <choose>
+            <when test="string-length(normalize-space(.)) = 0">
+                <comment>dcterms:dateAccepted could not be created, missing value in mods:dateOther[@type='defense']</comment>
+            </when>
+            <otherwise>
+                <dcterms:dateAccepted xsi:type="dcterms:W3CDTF">
+                    <value-of select="myfunc:formatDateTime(.)"/>
+                </dcterms:dateAccepted>
+            </otherwise>
+        </choose>
     </template>
 
     <template match="mods:dateIssued" mode="dcterms:issued">
-        <dcterms:issued xsi:type="dcterms:W3CDTF">
-            <value-of select="myfunc:formatDateTime(.)"/>
-        </dcterms:issued>
-    </template>
-
-    <template match="mods:dateIssued[not(text()) or (normalize-space(.)='')]" mode="dcterms:issued">
-        <comment>dcterms:issued could not be created, missing value in mods:originInfo[@eventType='distribution']/mods:dateIssued</comment>
+        <choose>
+            <when test="string-length(normalize-space(.)) = 0">
+                <comment>dcterms:issued could not be created, missing value in mods:dateIssued</comment>
+            </when>
+            <otherwise>
+                <dcterms:issued xsi:type="dcterms:W3CDTF">
+                    <value-of select="myfunc:formatDateTime(.)"/>
+                </dcterms:issued>
+            </otherwise>
+        </choose>
     </template>
 
     <template match="mods:dateIssued" mode="dcterms:created">
-        <dcterms:created xsi:type="dcterms:W3CDTF">
-            <value-of select="myfunc:formatDateTime(.)"/>
-        </dcterms:created>
-    </template>
-
-    <template match="mods:dateIssued[not(text()) or (normalize-space(.)='')]" mode="dcterms:created">
-        <comment>dcterms:created could not be created, missing value in mods:originInfo[@eventType='publication']/mods:dateIssued</comment>
+        <choose>
+            <when test="string-length(normalize-space(.)) = 0">
+                <comment>dcterms:created could not be created, missing value in mods:dateIssued</comment>
+            </when>
+            <otherwise>
+                <dcterms:created xsi:type="dcterms:W3CDTF">
+                    <value-of select="myfunc:formatDateTime(.)"/>
+                </dcterms:created>
+            </otherwise>
+        </choose>
     </template>
 
     <template match="mets:metsHdr/@LASTMODDATE">
-        <dcterms:modified xsi:type="dcterms:W3CDTF">
-            <value-of select="myfunc:formatDateTime(.)"/>
-        </dcterms:modified>
-    </template>
-
-    <template match="mets:metsHdr[@LASTMODDATE and (not(text()) or (normalize-space(.)=''))]">
-        <comment>dcterms:modified could not be created, missing value in mets:metsHdr[@LASTMODDATE]</comment>
+        <choose>
+            <when test="string-length(normalize-space(.)) = 0">
+                <comment>dcterms:modified could not be created, missing value in mets:metsHdr[@LASTMODDATE]</comment>
+            </when>
+            <otherwise>
+                <dcterms:modified xsi:type="dcterms:W3CDTF">
+                    <value-of select="myfunc:formatDateTime(.)"/>
+                </dcterms:modified>
+            </otherwise>
+        </choose>
     </template>
 
     <template match="mets:structMap[@TYPE='LOGICAL']/mets:div/@TYPE">
