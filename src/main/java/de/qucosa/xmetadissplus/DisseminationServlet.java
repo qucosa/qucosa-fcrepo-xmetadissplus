@@ -125,15 +125,25 @@ public class DisseminationServlet extends HttpServlet {
             sendError(resp, SC_BAD_REQUEST, e.getMessage());
         } catch (Throwable anythingElse) {
             log.warn("Internal server error", anythingElse);
-            sendError(resp, SC_INTERNAL_SERVER_ERROR, anythingElse.getMessage());
+            sendError(resp, SC_INTERNAL_SERVER_ERROR);
         }
     }
 
+    private void sendError(HttpServletResponse resp, int status) throws IOException {
+        sendError(resp, status, null);
+    }
+
     private void sendError(HttpServletResponse resp, int status, String msg) throws IOException {
-        resp.setStatus(status);
-        resp.setContentType("text/plain");
-        resp.setContentLength(msg.getBytes().length);
-        resp.getWriter().print(msg);
+        if (!resp.isCommitted()) {
+            resp.setStatus(status);
+            resp.setContentType("text/plain");
+            if (msg != null && !msg.isEmpty()) {
+                resp.setContentLength(msg.getBytes().length);
+                resp.getWriter().print(msg);
+            }
+        } else {
+            log.warn(String.format("Response already committed. Cannot send error '%s' (%d)", msg, status));
+        }
     }
 
     private void transform(InputStream in, OutputStream out) throws Exception {
