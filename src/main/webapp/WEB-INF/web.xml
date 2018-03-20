@@ -21,23 +21,33 @@
 		  http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
 
     <!--
-        Context parameter defining the URL pattern for datastream transfer.
-        Placeholders ##AGENT##, ##PID## and ##DSID## get replaced by their appropriate values,
+        Context parameter defining the URL pattern for ZIP file transfer.
+        Placeholders ##AGENT##, ##PID## get replaced by their appropriate values,
         which are extracted from the METS XML document.
      -->
     <context-param>
         <param-name>transfer.url.pattern</param-name>
-        <param-value>http://##AGENT##.example.com/##PID##/attachments/##DSID##</param-value>
+        <param-value>http://##AGENT##.example.com/##PID##/content.zip</param-value>
+    </context-param>
+
+    <!--
+        If `true` the objects PID gets URL encoded when constructing the transfer URL.
+    -->
+    <context-param>
+        <param-name>transfer.url.pidencode</param-name>
+        <param-value>true</param-value>
     </context-param>
 
     <!--
         Context parameter defining whether the value of ##AGENT## should be mapped to something else
         in the process of forming the transfer URL.
     -->
+    <!--
     <context-param>
         <param-name>agent.substitutions</param-name>
         <param-value>ubc=monarch ; ubl=ul</param-value>
     </context-param>
+    -->
 
     <servlet>
         <servlet-name>DisseminationServlet</servlet-name>

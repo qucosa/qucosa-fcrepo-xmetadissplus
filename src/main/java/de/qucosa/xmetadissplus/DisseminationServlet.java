@@ -16,6 +16,7 @@
 
 package de.qucosa.xmetadissplus;
 
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
@@ -27,21 +28,30 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -54,6 +64,7 @@ public class DisseminationServlet extends HttpServlet {
 
     private static final String REQUEST_PARAM_METS_URL = "metsurl";
     private static final String PARAM_TRANSFER_URL_PATTERN = "transfer.url.pattern";
+    private static final String PARAM_TRANSFER_URL_PIDENCODE = "transfer.url.pidencode";
     private static final String PARAM_AGENT_NAME_SUBSTITUTIONS = "agent.substitutions";
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -61,18 +72,40 @@ public class DisseminationServlet extends HttpServlet {
     private CloseableHttpClient closeableHttpClient;
     private GenericObjectPool<Transformer> transformerPool;
 
+    private String transferUrlPattern;
+    private Map<String, String> agentNameSubstitutions;
+    private boolean transferUrlPidencode = false;
+
+    private XPathExpression XPATH_AGENT;
+
     @Override
     public void init() {
+
+        XPath xPath = XPathFactory.newInstance().newXPath();
+        xPath.setNamespaceContext(new SimpleNamespaceContext(new HashMap<String, String>() {{
+            put("mets", "http://www.loc.gov/METS/");
+        }}));
+
+        try {
+            XPATH_AGENT = xPath.compile("//mets:agent[@ROLE='EDITOR' and @TYPE='ORGANIZATION']/mets:name[1]");
+        } catch (XPathExpressionException e) {
+            throw new IllegalStateException(e);
+        }
+
         closeableHttpClient = HttpClientBuilder.create()
                         .setConnectionManager(new PoolingHttpClientConnectionManager())
                         .build();
 
         ServletConfig servletConfig = getServletConfig();
 
-        final String transferUrlPattern = getParameterValue(servletConfig, PARAM_TRANSFER_URL_PATTERN,
+        transferUrlPidencode = Boolean.valueOf(
+                getParameterValue(servletConfig, PARAM_TRANSFER_URL_PIDENCODE,
+                        System.getProperty(PARAM_TRANSFER_URL_PIDENCODE, "false")));
+
+        transferUrlPattern = getParameterValue(servletConfig, PARAM_TRANSFER_URL_PATTERN,
                 System.getProperty(PARAM_TRANSFER_URL_PATTERN, ""));
 
-        final Map<String, String> agentNameSubstitutions = decodeSubstitutions(
+        agentNameSubstitutions = decodeSubstitutions(
                 getParameterValue(servletConfig, PARAM_AGENT_NAME_SUBSTITUTIONS,
                         System.getProperty(PARAM_AGENT_NAME_SUBSTITUTIONS, "")));
 
@@ -89,6 +122,7 @@ public class DisseminationServlet extends HttpServlet {
             }
         });
 
+        log.info("Started XMetaDissPlus Dissemination...");
     }
 
     @Override
@@ -108,8 +142,30 @@ public class DisseminationServlet extends HttpServlet {
             try (CloseableHttpResponse response = closeableHttpClient.execute(new HttpGet(metsDocumentUri))) {
                 if (SC_OK == response.getStatusLine().getStatusCode()) {
 
+                    InputStream metsDocumentInputStream = response.getEntity().getContent();
+
+                    DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+                    documentBuilderFactory.setNamespaceAware(true);
+                    Document metsDocument = documentBuilderFactory.newDocumentBuilder().parse(metsDocumentInputStream);
+
+                    String agentName = extractAgentName(metsDocument);
+                    String pid = extractObjectPID(metsDocument, transferUrlPidencode);
+
+                    Map<String, String> valuesMap = new LinkedHashMap<>();
+                    valuesMap.put("AGENT", agentName);
+                    valuesMap.put("PID", pid);
+
+                    StrSubstitutor substitutor = new StrSubstitutor(valuesMap, "##", "##");
+                    final String transferUrl = substitutor.replace(transferUrlPattern);
+
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                    transform(response.getEntity().getContent(), byteArrayOutputStream);
+
+                    Transformer transformer = transformerPool.borrowObject();
+                    transformer.setParameter("transfer_url", transferUrl);
+                    transformer.transform(
+                            new DOMSource(metsDocument),
+                            new StreamResult(byteArrayOutputStream));
+                    transformerPool.returnObject(transformer);
 
                     resp.setStatus(SC_OK);
                     resp.setContentType("application/xml");
@@ -144,12 +200,6 @@ public class DisseminationServlet extends HttpServlet {
         }
     }
 
-    private void transform(InputStream in, OutputStream out) throws Exception {
-        Transformer transformer = transformerPool.borrowObject();
-        transformer.transform(new StreamSource(in), new StreamResult(out));
-        transformerPool.returnObject(transformer);
-    }
-
     private String getRequiredRequestParameterValue(ServletRequest request, String name)
             throws MissingRequiredParameter {
         final String v = request.getParameter(name);
@@ -173,6 +223,32 @@ public class DisseminationServlet extends HttpServlet {
             }
         }
         return result;
+    }
+
+    private String extractAgentName(Document metsDocument) throws XPathExpressionException {
+        String agentNameElement = XPATH_AGENT.evaluate(metsDocument);
+        if (agentNameElement != null) {
+            String agentName = agentNameElement.trim();
+            if (agentNameSubstitutions.containsKey(agentName)) {
+                return agentNameSubstitutions.get(agentName);
+            } else {
+                return agentName;
+            }
+        }
+        return null;
+    }
+
+    private String extractObjectPID(Document metsDocument, boolean encodePid) {
+        String pid = metsDocument.getDocumentElement().getAttribute("OBJID");
+        if (pid != null && !pid.isEmpty() && encodePid) {
+            try {
+                pid = URLEncoder.encode(pid, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                // UTF-8 is always supported, unless the JVM runtime changes this
+                throw new RuntimeException(e);
+            }
+        }
+        return pid;
     }
 
 }

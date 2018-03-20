@@ -50,6 +50,9 @@
 
     <strip-space elements="*"/>
 
+    <!-- Transfer URL parameter, passed from dissemination servlet -->
+    <param name="transfer_url"/>
+
     <!-- Main control templates -->
 
     <template match="/mets:mets">
@@ -77,7 +80,9 @@
         <!-- dc:publisher -->
         <apply-templates select="mods:name[@type='corporate' and @displayLabel='mapping-hack-default-publisher']"
                          mode="mapping-hack-default-publisher"/>
-        <apply-templates select="mods:name[@type='corporate' and (mods:role/mods:roleTerm='pbl' or mods:role/mods:roleTerm='edt')]" mode="dc:publisher"/>
+        <apply-templates
+                select="mods:name[@type='corporate' and (mods:role/mods:roleTerm='pbl' or mods:role/mods:roleTerm='edt')]"
+                mode="dc:publisher"/>
         <!-- dc:contributor -->
         <apply-templates select="mods:name[@type='personal' and (
                                     mods:role/mods:roleTerm='edt' or
@@ -149,6 +154,14 @@
         <ddb:fileNumber>
             <value-of select="count(//mets:fileSec//mets:file)"/>
         </ddb:fileNumber>
+
+        <!-- Skip: ddb:fileProperties -->
+        <!-- Skip: ddb:checksum -->
+
+        <!-- ddb:transfer -->
+        <ddb:transfer ddb:type="dcterms:URI">
+            <value-of select="$transfer_url"/>
+        </ddb:transfer>
 
         <!-- ddb:identifier -->
         <apply-templates select="mods:identifier" mode="ddb:identifier"/>
@@ -310,7 +323,9 @@
     <template match="mods:dateOther[@type='submission']">
         <choose>
             <when test="string-length(normalize-space(.)) = 0">
-                <comment>dcterms:dateSubmitted could not be created, missing value in mods:dateOther[@type='submission']</comment>
+                <comment>dcterms:dateSubmitted could not be created, missing value in
+                    mods:dateOther[@type='submission']
+                </comment>
             </when>
             <otherwise>
                 <dcterms:dateSubmitted xsi:type="dcterms:W3CDTF">
@@ -323,7 +338,8 @@
     <template match="mods:dateOther[@type='defense']">
         <choose>
             <when test="string-length(normalize-space(.)) = 0">
-                <comment>dcterms:dateAccepted could not be created, missing value in mods:dateOther[@type='defense']</comment>
+                <comment>dcterms:dateAccepted could not be created, missing value in mods:dateOther[@type='defense']
+                </comment>
             </when>
             <otherwise>
                 <dcterms:dateAccepted xsi:type="dcterms:W3CDTF">
@@ -534,7 +550,8 @@
         <variable name="ProjectID" select="./slub:project/@uid"/>
         <if test="$Funder != '' and $FundingProgram != '' and $ProjectID != ''">
             <dc:relation xsi:type="ddb:noScheme">
-                info:eu-repo/grantAgreement/<value-of select="$Funder"/>/<value-of select="$FundingProgram"/>/<value-of select="$ProjectID"/>
+                info:eu-repo/grantAgreement/<value-of select="$Funder"/>/<value-of select="$FundingProgram"/>/<value-of
+                    select="$ProjectID"/>
             </dc:relation>
         </if>
     </template>
@@ -552,7 +569,8 @@
                 <value-of select="$value"/>
             </when>
             <when test="contains($value, 'T')">
-                <value-of select="format-dateTime(xs:dateTime(myfunc:formatTimezoneHour($value)), '[Y0001]-[M01]-[D01]')"/>
+                <value-of
+                        select="format-dateTime(xs:dateTime(myfunc:formatTimezoneHour($value)), '[Y0001]-[M01]-[D01]')"/>
             </when>
             <otherwise>
                 <value-of select="format-date(xs:date($value), '[Y0001]-[M01]-[D01]')"/>

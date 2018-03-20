@@ -74,6 +74,13 @@
             <version>2.5.0</version>
         </dependency>
 
+        <!-- String substitution for URL pattern configuration -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.5</version>
+        </dependency>
+
         <!-- Testing -->
         <dependency>
             <groupId>junit</groupId>
