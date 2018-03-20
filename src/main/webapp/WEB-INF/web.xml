@@ -22,20 +22,21 @@
 
     <!--
         Context parameter defining the URL pattern for datastream transfer.
-        Placeholders ##PID## and ##DSID## get replaced by their appropriate values.
+        Placeholders ##AGENT##, ##PID## and ##DSID## get replaced by their appropriate values,
+        which are extracted from the METS XML document.
      -->
     <context-param>
         <param-name>transfer.url.pattern</param-name>
-        <param-value>http://localhost:8080/fedora/objects/##PID##/datastreams/##DSID##/content</param-value>
+        <param-value>http://##AGENT##.example.com/##PID##/attachments/##DSID##</param-value>
     </context-param>
 
     <!--
-        Context parameter defining whether a PID should be URL encoded when generating a
-        transfer url from the pattern above.
+        Context parameter defining whether the value of ##AGENT## should be mapped to something else
+        in the process of forming the transfer URL.
     -->
     <context-param>
-        <param-name>transfer.url.pidencode</param-name>
-        <param-value>yes</param-value>
+        <param-name>agent.substitutions</param-name>
+        <param-value>ubc=monarch ; ubl=ul</param-value>
     </context-param>
 
     <servlet>

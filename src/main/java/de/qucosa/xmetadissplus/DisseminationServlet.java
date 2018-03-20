@@ -28,6 +28,7 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -41,6 +42,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
@@ -50,11 +53,15 @@ import static javax.servlet.http.HttpServletResponse.SC_OK;
 public class DisseminationServlet extends HttpServlet {
 
     private static final String REQUEST_PARAM_METS_URL = "metsurl";
+    private static final String PARAM_TRANSFER_URL_PATTERN = "transfer.url.pattern";
+    private static final String PARAM_AGENT_NAME_SUBSTITUTIONS = "agent.substitutions";
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     private CloseableHttpClient closeableHttpClient;
     private GenericObjectPool<Transformer> transformerPool;
+    private String transferUrlPattern;
+    private Map<String, String> agentNameSubstitutions;
 
     @Override
     public void init() {
@@ -74,6 +81,16 @@ public class DisseminationServlet extends HttpServlet {
                 return new DefaultPooledObject<>(transformer);
             }
         });
+
+        ServletConfig servletConfig = getServletConfig();
+
+        transferUrlPattern =
+                getParameterValue(servletConfig, PARAM_TRANSFER_URL_PATTERN,
+                        System.getProperty(PARAM_TRANSFER_URL_PATTERN, ""));
+        agentNameSubstitutions =
+                decodeSubstitutions(
+                        getParameterValue(servletConfig, PARAM_AGENT_NAME_SUBSTITUTIONS,
+                                System.getProperty(PARAM_AGENT_NAME_SUBSTITUTIONS, "")));
     }
 
     @Override
@@ -132,6 +149,22 @@ public class DisseminationServlet extends HttpServlet {
             throw new MissingRequiredParameter("Missing parameter '" + REQUEST_PARAM_METS_URL + "'");
         }
         return v;
+    }
+
+    private String getParameterValue(ServletConfig config, String name, String defaultValue) {
+        String v = config.getServletContext().getInitParameter(name);
+        return v == null ? defaultValue : v;
+    }
+
+    private Map<String, String> decodeSubstitutions(String parameterValue) {
+        LinkedHashMap<String, String> result = new LinkedHashMap<>();
+        if (parameterValue != null && !parameterValue.isEmpty()) {
+            for (String substitution : parameterValue.split(";")) {
+                String[] s = substitution.split("=");
+                result.put(s[0].trim(), s[1].trim());
+            }
+        }
+        return result;
     }
 
 }
