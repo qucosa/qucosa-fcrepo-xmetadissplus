@@ -60,14 +60,21 @@ public class DisseminationServlet extends HttpServlet {
 
     private CloseableHttpClient closeableHttpClient;
     private GenericObjectPool<Transformer> transformerPool;
-    private String transferUrlPattern;
-    private Map<String, String> agentNameSubstitutions;
 
     @Override
     public void init() {
         closeableHttpClient = HttpClientBuilder.create()
                         .setConnectionManager(new PoolingHttpClientConnectionManager())
                         .build();
+
+        ServletConfig servletConfig = getServletConfig();
+
+        final String transferUrlPattern = getParameterValue(servletConfig, PARAM_TRANSFER_URL_PATTERN,
+                System.getProperty(PARAM_TRANSFER_URL_PATTERN, ""));
+
+        final Map<String, String> agentNameSubstitutions = decodeSubstitutions(
+                getParameterValue(servletConfig, PARAM_AGENT_NAME_SUBSTITUTIONS,
+                        System.getProperty(PARAM_AGENT_NAME_SUBSTITUTIONS, "")));
 
         transformerPool = new GenericObjectPool<>(new BasePooledObjectFactory<Transformer>() {
             @Override
@@ -82,15 +89,6 @@ public class DisseminationServlet extends HttpServlet {
             }
         });
 
-        ServletConfig servletConfig = getServletConfig();
-
-        transferUrlPattern =
-                getParameterValue(servletConfig, PARAM_TRANSFER_URL_PATTERN,
-                        System.getProperty(PARAM_TRANSFER_URL_PATTERN, ""));
-        agentNameSubstitutions =
-                decodeSubstitutions(
-                        getParameterValue(servletConfig, PARAM_AGENT_NAME_SUBSTITUTIONS,
-                                System.getProperty(PARAM_AGENT_NAME_SUBSTITUTIONS, "")));
     }
 
     @Override

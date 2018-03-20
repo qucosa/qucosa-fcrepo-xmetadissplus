@@ -145,6 +145,11 @@
 
         <!-- Skip ddb:contact -->
 
+        <!-- ddb:fileNumber -->
+        <ddb:fileNumber>
+            <value-of select="count(//mets:fileSec//mets:file)"/>
+        </ddb:fileNumber>
+
         <!-- ddb:identifier -->
         <apply-templates select="mods:identifier" mode="ddb:identifier"/>
         <apply-templates select="/mets:mets/mets:amdSec//slub:info/slub:vgwortOpenKey" mode="ddb:identifier"/>
