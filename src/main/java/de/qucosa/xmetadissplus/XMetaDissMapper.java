@@ -3,6 +3,8 @@ package de.qucosa.xmetadissplus;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -17,28 +19,58 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.w3c.dom.Document;
 
 public class XMetaDissMapper {
     private Document metsDoc = null;
 
-    private StreamSource xslSource = null;
+    private String transferUrlPattern;
 
-    private static final String TRANSFER_URL_PATTERN = "http://%s.example.com/%s/content.zip";
+    private boolean transferUrlPidencode;
 
-    public XMetaDissMapper(Document metsDoc, StreamSource xslSource) {
-        this.metsDoc = metsDoc;
-        this.xslSource = xslSource;
+    @SuppressWarnings({ "serial", "unused" })
+    private Map<String, String> agentNameSubstitutions = new HashMap<String, String>() {
+        {
+            put("ubc", "monarch");
+        }
+        {
+            put("ubl", "ul");
+        }
+    };
+    
+    public XMetaDissMapper(String transferUrlPattern, String agentNameSubstitutions, boolean transferUrlPidencode) {
+        this.transferUrlPattern = transferUrlPattern;
+        this.transferUrlPidencode = transferUrlPidencode;
+        this.agentNameSubstitutions = decodeSubstitutions(agentNameSubstitutions);
     }
 
-    public Document transformXmetaDissplus() throws TransformerFactoryConfigurationError, Exception, XPathExpressionException {
+    @SuppressWarnings("serial")
+    public Document transformXmetaDissplus(Document metsDoc, StreamSource xslSource) throws TransformerFactoryConfigurationError, Exception, XPathExpressionException {
+        this.metsDoc = metsDoc;
         Transformer transformer = null;
         StringWriter stringWriter = new StringWriter();
         StreamResult streamResult = new StreamResult(stringWriter);
         Document xmetadiss = null;
+        
+        String agentName = extractAgent();
+        String pid = extractPid();
+        
+        Map<String, String> values = new LinkedHashMap<String, String>() {
+            {
+                put("AGENT", agentName);
+            }
+            {
+                put("PID", pid);
+            }
+        };
+        
+        StrSubstitutor substitutor = new StrSubstitutor(values, "##", "##");
+        String transferUrl = substitutor.replace(transferUrlPattern);
+        
         transformer = TransformerFactory.newInstance().newTransformer(xslSource);
-        transformer.setParameter("transfer_url", String.format(TRANSFER_URL_PATTERN, extractAgent(), extractPid()));
-        transformer.transform(new DOMSource(metsDoc), streamResult);
+        transformer.setParameter("transfer_url", transferUrl);
+        transformer.transform(new DOMSource(this.metsDoc), streamResult);
 
         DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
         builderFactory.setNamespaceAware(true);
@@ -70,8 +102,12 @@ public class XMetaDissMapper {
 
     private String extractPid() throws XPathExpressionException {
         String pid = null;
-        XPath xPath = xpath();
-        pid = (String) xPath.compile("//mets:mets/@OBJID").evaluate(metsDoc, XPathConstants.STRING);
+        
+        if (transferUrlPidencode) {
+            XPath xPath = xpath();
+            pid = (String) xPath.compile("//mets:mets/@OBJID").evaluate(metsDoc, XPathConstants.STRING);
+        }
+        
         return pid;
     }
     
@@ -80,6 +116,20 @@ public class XMetaDissMapper {
         XPath xPath = xpath();
         date = (String) xPath.compile("//mets:mets/mets:metsHdr/@LASTMODDATE").evaluate(metsDoc, XPathConstants.STRING);
         return date;
+    }
+    
+    private Map<String, String> decodeSubstitutions(String parameterValue) {
+        HashMap<String, String> result = new HashMap<String, String>();
+
+        if (parameterValue != null && !parameterValue.isEmpty()) {
+
+            for (String substitution : parameterValue.split(";")) {
+                String[] s = substitution.split("=");
+                result.put(s[0].trim(), s[1].trim());
+            }
+        }
+
+        return result;
     }
 
     @SuppressWarnings("serial")
