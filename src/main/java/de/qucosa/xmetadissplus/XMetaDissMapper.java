@@ -53,15 +53,12 @@ public class XMetaDissMapper {
         StreamResult streamResult = new StreamResult(stringWriter);
         Document xmetadiss = null;
         
-        String agentName = extractAgent();
-        String pid = extractPid();
-        
         Map<String, String> values = new LinkedHashMap<String, String>() {
             {
-                put("AGENT", agentName);
+                put("AGENT", extractAgent());
             }
             {
-                put("PID", pid);
+                put("PID", extractPid());
             }
         };
         
@@ -78,18 +75,6 @@ public class XMetaDissMapper {
         xmetadiss = documentBuilder.parse(new ByteArrayInputStream(stringWriter.toString().getBytes("UTF-8")));
 
         return xmetadiss;
-    }
-    
-    public String pid() throws XPathExpressionException {
-        return extractPid();
-    }
-    
-    public String lastModeDate() throws XPathExpressionException {
-        return extractLastModDate();
-    }
-    
-    public String agent() throws XPathExpressionException {
-        return extractAgent();
     }
 
     private String extractAgent() throws XPathExpressionException {
@@ -109,13 +94,6 @@ public class XMetaDissMapper {
         }
         
         return pid;
-    }
-    
-    private String extractLastModDate() throws XPathExpressionException {
-        String date = null;
-        XPath xPath = xpath();
-        date = (String) xPath.compile("//mets:mets/mets:metsHdr/@LASTMODDATE").evaluate(metsDoc, XPathConstants.STRING);
-        return date;
     }
     
     private Map<String, String> decodeSubstitutions(String parameterValue) {
