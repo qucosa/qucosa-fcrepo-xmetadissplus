@@ -307,14 +307,14 @@
     </template>
 
     <template match="mods:tableOfContents">
-        <dcterms:tableOfContents xsi:type="ddb:contentISO639-2" ddb:type="subject:noScheme">
+        <dcterms:tableOfContents xsi:type="ddb:contentISO639-2" ddb:type="noScheme">
             <call-template name="elementLanguageAttributeWithFallback"/>
             <value-of select="."/>
         </dcterms:tableOfContents>
     </template>
 
     <template match="mods:abstract">
-        <dcterms:abstract xsi:type="ddb:contentISO639-2" ddb:type="subject:noScheme">
+        <dcterms:abstract xsi:type="ddb:contentISO639-2" ddb:type="noScheme">
             <call-template name="elementLanguageAttributeWithFallback"/>
             <value-of select="."/>
         </dcterms:abstract>
