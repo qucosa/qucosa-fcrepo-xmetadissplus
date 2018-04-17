@@ -519,7 +519,7 @@
         <variable name="ddbtype">
             <choose>
                 <when test="@type='swb-ppn'">Erstkat-ID</when>
-                <when test="@type='qucosa:urn'">URN</when>
+                <when test="@type='urn'">URN</when>
                 <otherwise/>
             </choose>
         </variable>
