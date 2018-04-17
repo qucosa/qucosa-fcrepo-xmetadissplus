@@ -243,17 +243,28 @@
 
     <template match="mods:name[@type='corporate']" mode="dc:publisher">
         <dc:publisher xsi:type="cc:Publisher">
+            <variable name="corporation_node" select="myfunc:referencingSlubCorporationElement(., @ID)"/>
             <cc:universityOrInstitution>
                 <cc:name>
                     <value-of select="mods:namePart"/>
                 </cc:name>
-                <variable name="corporation_node" select="myfunc:referencingSlubCorporationElement(., @ID)"/>
                 <if test="$corporation_node">
                     <cc:place>
                         <value-of select="$corporation_node/@place"/>
                     </cc:place>
                 </if>
             </cc:universityOrInstitution>
+            <cc:address>
+                <choose>
+                    <when test="$corporation_node/@address">
+                        <value-of select="$corporation_node/@address"/>
+                    </when>
+                    <when test="$corporation_node/@place">
+                        <value-of select="$corporation_node/@place"/>
+                    </when>
+                    <otherwise/>
+                </choose>
+            </cc:address>
         </dc:publisher>
     </template>
 
@@ -269,6 +280,17 @@
                         <value-of select="$corporation_node/@place"/>
                     </cc:place>
                 </cc:universityOrInstitution>
+                <cc:address>
+                    <choose>
+                        <when test="$corporation_node/@address">
+                            <value-of select="$corporation_node/@address"/>
+                        </when>
+                        <when test="$corporation_node/@place">
+                            <value-of select="$corporation_node/@place"/>
+                        </when>
+                        <otherwise/>
+                    </choose>
+                </cc:address>
             </dc:publisher>
         </if>
     </template>
