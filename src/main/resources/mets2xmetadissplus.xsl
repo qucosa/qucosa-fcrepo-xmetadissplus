@@ -120,6 +120,7 @@
         <!-- SKIP dcterms:bibliographicCitation -->
 
         <!-- dc:source -->
+        <apply-templates select="mods:identifier[@type='isbn']" mode="dc:source"/>
         <apply-templates select="mods:relatedItem[@type='otherFormat']"/>
 
         <!-- dc:language -->
@@ -504,7 +505,6 @@
         <variable name="xsitype">
             <choose>
                 <when test="@type='qucosa:urn'">urn:nbn</when>
-                <when test="@type='isbn'">urn:isbn</when>
                 <otherwise/>
             </choose>
         </variable>
@@ -528,6 +528,12 @@
                 <value-of select="."/>
             </ddb:identifier>
         </if>
+    </template>
+
+    <template match="mods:identifier[@type='isbn']" mode="dc:source">
+        <dc:source xsi:type="ddb:ISBN">
+            <value-of select="."/>
+        </dc:source>
     </template>
 
     <template match="slub:vgwortOpenKey" mode="ddb:identifier">
