@@ -107,7 +107,7 @@
         <!-- dini:version_driver -->
         <apply-templates select="mods:originInfo[@eventType='production']/mods:edition" mode="dini:version_driver"/>
         <!-- dc:identifier -->
-        <apply-templates select="mods:identifier" mode="dc:identifier"/>
+        <apply-templates select="mods:identifier[@type='qucosa:urn']" mode="dc:identifier"/>
 
         <!-- SKIP dcterms:extent -->
 
@@ -501,18 +501,10 @@
         </dc:language>
     </template>
 
-    <template match="mods:identifier[@type]" mode="dc:identifier">
-        <variable name="xsitype">
-            <choose>
-                <when test="@type='qucosa:urn'">urn:nbn</when>
-                <otherwise/>
-            </choose>
-        </variable>
-        <if test="string-length($xsitype)>0">
-            <dc:identifier xsi:type="{$xsitype}">
-                <value-of select="."/>
-            </dc:identifier>
-        </if>
+    <template match="mods:identifier[@type='qucosa:urn']" mode="dc:identifier">
+        <dc:identifier xsi:type="urn:nbn">
+            <value-of select="."/>
+        </dc:identifier>
     </template>
 
     <template match="mods:identifier[@type]" mode="ddb:identifier">
