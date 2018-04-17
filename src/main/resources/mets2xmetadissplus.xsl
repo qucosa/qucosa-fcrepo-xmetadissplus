@@ -308,7 +308,7 @@
             <dc:subject xsi:type="dcterms:DDC">
                 <value-of select="."/>
             </dc:subject>
-            <dc:subject xsi:type="subject:DDC-SG">
+            <dc:subject xsi:type="xMetaDiss:DDC-SG">
                 <value-of select="."/>
             </dc:subject>
         </for-each>
