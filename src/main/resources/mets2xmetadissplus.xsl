@@ -175,7 +175,7 @@
     <!-- individual METS/MODS element templates -->
 
     <template match="mods:titleInfo/mods:title">
-        <dc:title xsi:type="ddb:titleISO639-2" xml:lang="{../@lang}">
+        <dc:title xsi:type="ddb:titleISO639-2" lang="{../@lang}">
             <value-of select="."/>
         </dc:title>
     </template>
@@ -184,7 +184,7 @@
         <variable name="titleLanguage" select="../@lang"/>
         <variable name="documentLanguage"
                   select="/mets:mets//mods:mods/mods:language/mods:languageTerm[@type='code'][1]"/>
-        <dcterms:alternative xsi:type="ddb:titleISO639-2" xml:lang="{$titleLanguage}">
+        <dcterms:alternative xsi:type="ddb:titleISO639-2" lang="{$titleLanguage}">
             <if test="$titleLanguage != $documentLanguage">
                 <attribute name="ddb:type">translated</attribute>
             </if>
@@ -196,7 +196,7 @@
         <variable name="titleLanguage" select="../@lang"/>
         <variable name="documentLanguage"
                   select="/mets:mets//mods:mods/mods:language/mods:languageTerm[@type='code'][1]"/>
-        <dcterms:alternative xsi:type="ddb:talternativeISO639-2" xml:lang="{$titleLanguage}">
+        <dcterms:alternative xsi:type="ddb:talternativeISO639-2" lang="{$titleLanguage}">
             <if test="$titleLanguage != $documentLanguage">
                 <attribute name="ddb:type">translated</attribute>
             </if>
@@ -593,7 +593,7 @@
     </function>
 
     <template name="elementLanguageAttributeWithFallback">
-        <attribute name="xml:lang">
+        <attribute name="lang">
             <choose>
                 <!-- If element has @lang attribute use its value -->
                 <when test="string(@lang)">
