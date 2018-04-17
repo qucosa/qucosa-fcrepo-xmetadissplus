@@ -122,6 +122,7 @@
         <!-- dc:source -->
         <apply-templates select="mods:identifier[@type='isbn']" mode="dc:source"/>
         <apply-templates select="mods:relatedItem[@type='otherFormat']"/>
+        <apply-templates select="mods:relatedItem[@type='original']/mods:note[@type='z']"/>
 
         <!-- dc:language -->
         <apply-templates select="mods:language/mods:languageTerm[@authority='iso639-2b' and @type='code']"/>
@@ -135,7 +136,7 @@
         <!-- SKIP dc:isRequiredBy -->
         <!-- SKIP dc:requires -->
 
-        <!-- dcterms:isPartOf / dc:source -->
+        <!-- dcterms:isPartOf -->
         <apply-templates select="mods:relatedItem[@type='original']"/>
         <apply-templates select="mods:relatedItem[@type='host' or @type='series']"/>
 
@@ -426,7 +427,6 @@
         <variable name="title" select="mods:titleInfo[1]/mods:title[1]"/>
         <variable name="issn" select="mods:identifier[@type='issn']"/>
         <variable name="urn" select="mods:identifier[@type='urn']"/>
-        <variable name="note" select="mods:note[@type='z']"/>
 
         <if test="string-length($title)>0">
             <dcterms:isPartOf xsi:type="ddb:noScheme">
@@ -463,11 +463,12 @@
                 <value-of select="concat('http://nbn-resolving.de/', $urn)"/>
             </dcterms:isPartOf>
         </if>
-        <if test="string-length($note)>0">
-            <dc:source xsi:type="ddb:noScheme">
-                <value-of select="$note"/>
-            </dc:source>
-        </if>
+    </template>
+
+    <template match="mods:relatedItem[@type='original']/mods:note[@type='z']">
+        <dc:source xsi:type="ddb:noScheme">
+            <value-of select="."/>
+        </dc:source>
     </template>
 
     <template match="mods:relatedItem[@type='host' or @type='series']">
