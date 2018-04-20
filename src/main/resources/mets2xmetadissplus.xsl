@@ -447,8 +447,8 @@
 
     <template match="mods:relatedItem[@type='original']">
         <variable name="title" select="mods:titleInfo[1]/mods:title[1]"/>
-        <variable name="issn" select="mods:identifier[@type='issn']"/>
-        <variable name="urn" select="mods:identifier[@type='urn']"/>
+        <variable name="issn" select="mods:identifier[@type='issn'][1]"/>
+        <variable name="urn" select="mods:identifier[@type='urn'][1]"/>       
 
         <if test="string-length($title)>0">
             <dcterms:isPartOf xsi:type="ddb:noScheme">
