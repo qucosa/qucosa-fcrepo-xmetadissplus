@@ -107,7 +107,7 @@
         <!-- dini:version_driver -->
         <apply-templates select="mods:originInfo[@eventType='production']/mods:edition" mode="dini:version_driver"/>
         <!-- dc:identifier -->
-        <apply-templates select="mods:identifier" mode="dc:identifier"/>
+        <apply-templates select="mods:identifier[@type='qucosa:urn']" mode="dc:identifier"/>
 
         <!-- SKIP dcterms:extent -->
 
@@ -120,7 +120,9 @@
         <!-- SKIP dcterms:bibliographicCitation -->
 
         <!-- dc:source -->
+        <apply-templates select="mods:identifier[@type='isbn']" mode="dc:source"/>
         <apply-templates select="mods:relatedItem[@type='otherFormat']"/>
+        <apply-templates select="mods:relatedItem[@type='original']/mods:note[@type='z']"/>
 
         <!-- dc:language -->
         <apply-templates select="mods:language/mods:languageTerm[@authority='iso639-2b' and @type='code']"/>
@@ -134,7 +136,7 @@
         <!-- SKIP dc:isRequiredBy -->
         <!-- SKIP dc:requires -->
 
-        <!-- dcterms:isPartOf / dc:source -->
+        <!-- dcterms:isPartOf -->
         <apply-templates select="mods:relatedItem[@type='original']"/>
         <apply-templates select="mods:relatedItem[@type='host' or @type='series']"/>
 
@@ -175,7 +177,7 @@
     <!-- individual METS/MODS element templates -->
 
     <template match="mods:titleInfo/mods:title">
-        <dc:title xsi:type="ddb:titleISO639-2" xml:lang="{../@lang}">
+        <dc:title xsi:type="ddb:titleISO639-2" lang="{../@lang}">
             <value-of select="."/>
         </dc:title>
     </template>
@@ -184,7 +186,7 @@
         <variable name="titleLanguage" select="../@lang"/>
         <variable name="documentLanguage"
                   select="/mets:mets//mods:mods/mods:language/mods:languageTerm[@type='code'][1]"/>
-        <dcterms:alternative xsi:type="ddb:titleISO639-2" xml:lang="{$titleLanguage}">
+        <dcterms:alternative xsi:type="ddb:titleISO639-2" lang="{$titleLanguage}">
             <if test="$titleLanguage != $documentLanguage">
                 <attribute name="ddb:type">translated</attribute>
             </if>
@@ -196,7 +198,7 @@
         <variable name="titleLanguage" select="../@lang"/>
         <variable name="documentLanguage"
                   select="/mets:mets//mods:mods/mods:language/mods:languageTerm[@type='code'][1]"/>
-        <dcterms:alternative xsi:type="ddb:talternativeISO639-2" xml:lang="{$titleLanguage}">
+        <dcterms:alternative xsi:type="ddb:talternativeISO639-2" lang="{$titleLanguage}">
             <if test="$titleLanguage != $documentLanguage">
                 <attribute name="ddb:type">translated</attribute>
             </if>
@@ -241,17 +243,28 @@
 
     <template match="mods:name[@type='corporate']" mode="dc:publisher">
         <dc:publisher xsi:type="cc:Publisher">
+            <variable name="corporation_node" select="myfunc:referencingSlubCorporationElement(., @ID)"/>
             <cc:universityOrInstitution>
                 <cc:name>
                     <value-of select="mods:namePart"/>
                 </cc:name>
-                <variable name="corporation_node" select="myfunc:referencingSlubCorporationElement(., @ID)"/>
                 <if test="$corporation_node">
                     <cc:place>
                         <value-of select="$corporation_node/@place"/>
                     </cc:place>
                 </if>
             </cc:universityOrInstitution>
+            <cc:address>
+                <choose>
+                    <when test="$corporation_node/@address">
+                        <value-of select="$corporation_node/@address"/>
+                    </when>
+                    <when test="$corporation_node/@place">
+                        <value-of select="$corporation_node/@place"/>
+                    </when>
+                    <otherwise/>
+                </choose>
+            </cc:address>
         </dc:publisher>
     </template>
 
@@ -267,6 +280,17 @@
                         <value-of select="$corporation_node/@place"/>
                     </cc:place>
                 </cc:universityOrInstitution>
+                <cc:address>
+                    <choose>
+                        <when test="$corporation_node/@address">
+                            <value-of select="$corporation_node/@address"/>
+                        </when>
+                        <when test="$corporation_node/@place">
+                            <value-of select="$corporation_node/@place"/>
+                        </when>
+                        <otherwise/>
+                    </choose>
+                </cc:address>
             </dc:publisher>
         </if>
     </template>
@@ -284,7 +308,7 @@
             <dc:subject xsi:type="dcterms:DDC">
                 <value-of select="."/>
             </dc:subject>
-            <dc:subject xsi:type="subject:DDC-SG">
+            <dc:subject xsi:type="xMetaDiss:DDC-SG">
                 <value-of select="."/>
             </dc:subject>
         </for-each>
@@ -307,14 +331,14 @@
     </template>
 
     <template match="mods:tableOfContents">
-        <dcterms:tableOfContents xsi:type="ddb:contentISO639-2" ddb:type="subject:noScheme">
+        <dcterms:tableOfContents xsi:type="ddb:contentISO639-2" ddb:type="noScheme">
             <call-template name="elementLanguageAttributeWithFallback"/>
             <value-of select="."/>
         </dcterms:tableOfContents>
     </template>
 
     <template match="mods:abstract">
-        <dcterms:abstract xsi:type="ddb:contentISO639-2" ddb:type="subject:noScheme">
+        <dcterms:abstract xsi:type="ddb:contentISO639-2" ddb:type="noScheme">
             <call-template name="elementLanguageAttributeWithFallback"/>
             <value-of select="."/>
         </dcterms:abstract>
@@ -425,7 +449,6 @@
         <variable name="title" select="mods:titleInfo[1]/mods:title[1]"/>
         <variable name="issn" select="mods:identifier[@type='issn']"/>
         <variable name="urn" select="mods:identifier[@type='urn']"/>
-        <variable name="note" select="mods:note[@type='z']"/>
 
         <if test="string-length($title)>0">
             <dcterms:isPartOf xsi:type="ddb:noScheme">
@@ -462,11 +485,12 @@
                 <value-of select="concat('http://nbn-resolving.de/', $urn)"/>
             </dcterms:isPartOf>
         </if>
-        <if test="string-length($note)>0">
-            <dc:source xsi:type="ddb:noScheme">
-                <value-of select="$note"/>
-            </dc:source>
-        </if>
+    </template>
+
+    <template match="mods:relatedItem[@type='original']/mods:note[@type='z']">
+        <dc:source xsi:type="ddb:noScheme">
+            <value-of select="."/>
+        </dc:source>
     </template>
 
     <template match="mods:relatedItem[@type='host' or @type='series']">
@@ -500,26 +524,17 @@
         </dc:language>
     </template>
 
-    <template match="mods:identifier[@type]" mode="dc:identifier">
-        <variable name="xsitype">
-            <choose>
-                <when test="@type='qucosa:urn'">urn:nbn</when>
-                <when test="@type='isbn'">urn:isbn</when>
-                <otherwise/>
-            </choose>
-        </variable>
-        <if test="string-length($xsitype)>0">
-            <dc:identifier xsi:type="{$xsitype}">
-                <value-of select="."/>
-            </dc:identifier>
-        </if>
+    <template match="mods:identifier[@type='qucosa:urn']" mode="dc:identifier">
+        <dc:identifier xsi:type="urn:nbn">
+            <value-of select="."/>
+        </dc:identifier>
     </template>
 
     <template match="mods:identifier[@type]" mode="ddb:identifier">
         <variable name="ddbtype">
             <choose>
                 <when test="@type='swb-ppn'">Erstkat-ID</when>
-                <when test="@type='qucosa:urn'">URN</when>
+                <when test="@type='urn'">URN</when>
                 <otherwise/>
             </choose>
         </variable>
@@ -528,6 +543,12 @@
                 <value-of select="."/>
             </ddb:identifier>
         </if>
+    </template>
+
+    <template match="mods:identifier[@type='isbn']" mode="dc:source">
+        <dc:source xsi:type="ddb:ISBN">
+            <value-of select="."/>
+        </dc:source>
     </template>
 
     <template match="slub:vgwortOpenKey" mode="ddb:identifier">
@@ -593,7 +614,7 @@
     </function>
 
     <template name="elementLanguageAttributeWithFallback">
-        <attribute name="xml:lang">
+        <attribute name="lang">
             <choose>
                 <!-- If element has @lang attribute use its value -->
                 <when test="string(@lang)">
