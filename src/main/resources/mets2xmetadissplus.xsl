@@ -80,12 +80,12 @@
         <apply-templates select="mods:name[@type='corporate' and contains('pbl edt prv', mods:role/mods:roleTerm)]"/>
         <!-- dc:contributor -->
         <apply-templates select="mods:name[@type='personal' and (
+                                    mods:role/mods:roleTerm='dgs' or
                                     mods:role/mods:roleTerm='edt' or
+                                    mods:role/mods:roleTerm='red' or
                                     mods:role/mods:roleTerm='rev' or
                                     mods:role/mods:roleTerm='sad' or
-                                    mods:role/mods:roleTerm='ths' or
-                                    mods:role/mods:roleTerm='pbl' or
-                                    mods:role/mods:roleTerm='dgs')]" mode="dc:contributor"/>
+                                    mods:role/mods:roleTerm='ths')]" mode="dc:contributor"/>
         <!-- dcterms:dateSubmitted -->
         <apply-templates select="mods:originInfo[@eventType='publication']/mods:dateOther[@type='submission']"/>
         <!-- dcterms:dateAccepted -->
