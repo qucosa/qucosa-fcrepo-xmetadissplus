@@ -21,7 +21,6 @@
             xmlns:mets="http://www.loc.gov/METS/"
             xmlns:mods="http://www.loc.gov/mods/v3"
             xmlns:dcterms="http://purl.org/dc/terms/"
-            xmlns:subject="http://www.d.nb.de/standards/subject/"
             xmlns:cc="http://www.d-nb.de/standards/cc/"
             xmlns:thesis="http://www.ndltd.org/standards/metadata/etdms/1.0/"
             xmlns:myfunc="urn:de:qucosa:xmetadissplus"
@@ -39,7 +38,7 @@
                                     http://www.d-nb.de/standards/pc/ http://files.dnb.de/standards/xmetadiss/pc.xsd
                                     http://www.d-nb.de/standards/ddb/ http://files.dnb.de/standards/xmetadiss/ddb.xsd
                                     http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd
-                                    http://www.d.nb.de/standards/subject/ http://files.dnb.de/standards/xmetadiss/subject.xsd
+
                                     http://www.d-nb.de/standards/cc/ http://files.dnb.de/standards/xmetadiss/cc.xsd
                                     http://www.ndltd.org/standards/metadata/etdms/1.0/ http://files.dnb.de/standards/xmetadiss/thesis.xsd
                                     http://www.w3.org/2001/XMLSchema https://www.w3.org/2009/XMLSchema/XMLSchema.xsd
@@ -78,11 +77,7 @@
         <!-- dcterms:abstract -->
         <apply-templates select="mods:abstract[@type='summary']"/>
         <!-- dc:publisher -->
-        <apply-templates select="mods:name[@type='corporate' and @displayLabel='mapping-hack-default-publisher']"
-                         mode="mapping-hack-default-publisher"/>
-        <apply-templates
-                select="mods:name[@type='corporate' and (mods:role/mods:roleTerm='pbl' or mods:role/mods:roleTerm='edt')]"
-                mode="dc:publisher"/>
+        <apply-templates select="mods:name[@type='corporate' and contains('pbl edt prv', mods:role/mods:roleTerm)]"/>
         <!-- dc:contributor -->
         <apply-templates select="mods:name[@type='personal' and (
                                     mods:role/mods:roleTerm='edt' or
@@ -241,14 +236,17 @@
         </for-each>
     </template>
 
-    <template match="mods:name[@type='corporate']" mode="dc:publisher">
-        <dc:publisher xsi:type="cc:Publisher">
-            <variable name="corporation_node" select="myfunc:referencingSlubCorporationElement(., @ID)"/>
+    <template match="mods:name[@type='corporate' and contains('pbl edt prv', mods:role/mods:roleTerm)]">
+        <variable name="corporation_node" select="myfunc:referencingSlubCorporationElement(., @ID)"/>
+        <dc:publisher xsi:type="cc:Publisher" ddb:role="{mods:role/mods:roleTerm}">
             <cc:universityOrInstitution>
+                <if test="mods:nameIdentifier[@type='gnd']">
+                    <attribute name="cc:GKD-Nr" select="mods:nameIdentifier[@type='gnd']"/>
+                </if>
                 <cc:name>
-                    <value-of select="mods:namePart"/>
+                    <value-of select="mods:namePart[1]"/>
                 </cc:name>
-                <if test="$corporation_node">
+                <if test="$corporation_node/@place">
                     <cc:place>
                         <value-of select="$corporation_node/@place"/>
                     </cc:place>
@@ -262,37 +260,9 @@
                     <when test="$corporation_node/@place">
                         <value-of select="$corporation_node/@place"/>
                     </when>
-                    <otherwise/>
                 </choose>
             </cc:address>
         </dc:publisher>
-    </template>
-
-    <template match="mods:name[@type='corporate']" mode="mapping-hack-default-publisher">
-        <variable name="corporation_node" select="myfunc:referencingSlubCorporationElement(., @ID)"/>
-        <if test="$corporation_node">
-            <dc:publisher xsi:type="cc:Publisher">
-                <cc:universityOrInstitution>
-                    <cc:name>
-                        <value-of select="$corporation_node/slub:university"/>
-                    </cc:name>
-                    <cc:place>
-                        <value-of select="$corporation_node/@place"/>
-                    </cc:place>
-                </cc:universityOrInstitution>
-                <cc:address>
-                    <choose>
-                        <when test="$corporation_node/@address">
-                            <value-of select="$corporation_node/@address"/>
-                        </when>
-                        <when test="$corporation_node/@place">
-                            <value-of select="$corporation_node/@place"/>
-                        </when>
-                        <otherwise/>
-                    </choose>
-                </cc:address>
-            </dc:publisher>
-        </if>
     </template>
 
     <template match="mods:classification[@authority='z']">
