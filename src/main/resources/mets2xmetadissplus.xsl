@@ -38,7 +38,6 @@
                                     http://www.d-nb.de/standards/pc/ http://files.dnb.de/standards/xmetadiss/pc.xsd
                                     http://www.d-nb.de/standards/ddb/ http://files.dnb.de/standards/xmetadiss/ddb.xsd
                                     http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd
-
                                     http://www.d-nb.de/standards/cc/ http://files.dnb.de/standards/xmetadiss/cc.xsd
                                     http://www.ndltd.org/standards/metadata/etdms/1.0/ http://files.dnb.de/standards/xmetadiss/thesis.xsd
                                     http://www.w3.org/2001/XMLSchema https://www.w3.org/2009/XMLSchema/XMLSchema.xsd
@@ -86,14 +85,14 @@
                                     mods:role/mods:roleTerm='rev' or
                                     mods:role/mods:roleTerm='sad' or
                                     mods:role/mods:roleTerm='ths')]" mode="dc:contributor"/>
+        <!-- dcterms:created -->
+        <apply-templates select="mods:originInfo[@eventType='publication']/mods:dateIssued" mode="dcterms:created"/>
         <!-- dcterms:dateSubmitted -->
         <apply-templates select="mods:originInfo[@eventType='publication']/mods:dateOther[@type='submission']"/>
         <!-- dcterms:dateAccepted -->
         <apply-templates select="mods:originInfo[@eventType='publication']/mods:dateOther[@type='defense']"/>
         <!-- dcterms:issued -->
         <apply-templates select="mods:originInfo[@eventType='distribution']/mods:dateIssued" mode="dcterms:issued"/>
-        <!-- dcterms:created -->
-        <apply-templates select="mods:originInfo[@eventType='publication']/mods:dateIssued" mode="dcterms:created"/>
 
         <!-- dcterms:modified -->
         <apply-templates select="/mets:mets/mets:metsHdr/@LASTMODDATE"/>
