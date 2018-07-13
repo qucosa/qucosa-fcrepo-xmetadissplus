@@ -76,7 +76,7 @@
         <!-- dcterms:abstract -->
         <apply-templates select="mods:abstract[@type='summary']"/>
         <!-- dc:publisher -->
-        <apply-templates select="mods:name[@type='corporate' and contains('pbl edt prv', mods:role/mods:roleTerm)]"/>
+        <apply-templates select="mods:name[@type='corporate' and myfunc:nodesMatch(mods:role/mods:roleTerm, 'pbl|edt|prv')]"/>
         <!-- dc:contributor -->
         <apply-templates select="mods:name[@type='personal' and (
                                     mods:role/mods:roleTerm='dgs' or
@@ -235,7 +235,7 @@
         </for-each>
     </template>
 
-    <template match="mods:name[@type='corporate' and contains('pbl edt prv', mods:role/mods:roleTerm)]">
+    <template match="mods:name[@type='corporate' and myfunc:nodesMatch(mods:role/mods:roleTerm, 'pbl|edt|prv')]">
         <variable name="corporation_node" select="myfunc:referencingSlubCorporationElement(., @ID)"/>
         <dc:publisher xsi:type="cc:Publisher" ddb:role="{mods:role/mods:roleTerm}">
             <cc:universityOrInstitution>
@@ -712,6 +712,12 @@
         <param name="refid" as="xs:string"/>
         <sequence select="root($context)//slub:corporation[
             @ref=$refid or @ref=concat('#', $refid) or @slub:ref=$refid or @slub:ref=concat('#', $refid)]"/>
+    </function>
+
+    <function name="myfunc:nodesMatch" as="xs:boolean">
+        <param name="nodes"/>
+        <param name="pattern" as="xs:string"/>
+        <value-of select="matches(string-join($nodes, ' '), $pattern)"/>
     </function>
 
 </stylesheet>
