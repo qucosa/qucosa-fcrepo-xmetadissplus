@@ -116,6 +116,7 @@
         <!-- dc:source -->
         <apply-templates select="mods:identifier[@type='isbn']" mode="dc:source"/>
         <apply-templates select="mods:relatedItem[@type='otherFormat']"/>
+        <apply-templates select="mods:relatedItem[@type='original']" mode="dc:source"/>
         <apply-templates select="mods:relatedItem[@type='original']/mods:note[@type='z']"/>
 
         <!-- dc:language -->
@@ -131,7 +132,10 @@
         <!-- SKIP dc:requires -->
 
         <!-- dcterms:isPartOf -->
-        <apply-templates select="mods:relatedItem[@type='original']"/>
+
+        <!-- Duplicate elements of dc:source for WinIBW xMetaDissPlus2Pica script. -->
+        <apply-templates select="mods:relatedItem[@type='original']" mode="dcterms:isPartOf"/>
+
         <apply-templates select="mods:relatedItem[@type='host' or @type='series']"/>
 
         <!-- SKIP dc:coverage -->
@@ -414,46 +418,57 @@
         </dc:source>
     </template>
 
-    <template match="mods:relatedItem[@type='original']">
-        <variable name="title" select="mods:titleInfo[1]/mods:title[1]"/>
+    <template match="mods:relatedItem[@type='original' and mods:titleInfo/mods:title]" mode="dc:source">
         <variable name="isbn" select="mods:identifier[@type='isbn'][1]"/>
-        <variable name="urn" select="mods:identifier[@type='urn'][1]"/>       
 
-        <if test="string-length($title)>0">
-            <dc:source xsi:type="ddb:noScheme">
-                <value-of select="$title"/>
-                <variable name="volume" select="mods:part[@type='volume']/mods:detail/mods:number"/>
-                <variable name="issue" select="mods:part[@type='issue']/mods:detail/mods:number"/>
-                <variable name="year" select="mods:originInfo/mods:dateIssued"/>
-                <if test="string-length($volume)>0">
-                    <value-of select="concat(' ', $volume, '(', $year, ')', $issue)"/>
-                </if>
-                <variable name="start" select="../mods:part[@type='section']/mods:extent[@unit='pages']/mods:start"/>
-                <if test="string-length($start)>0">
-                    <value-of select="concat(', S. ', $start)"/>
-                </if>
-                <variable name="end" select="../mods:part[@type='section']/mods:extent[@unit='pages']/mods:end"/>
-                <if test="string-length($end)>0">
-                    <value-of select="concat('-', $end)"/>
-                </if>
-                <if test="string-length($isbn)>0">
-                    <value-of select="concat(', ISBN: ', $isbn)"/>
-                </if>
-                <if test="string-length($urn)>0">
-                    <value-of select="concat(', URN: ', $urn)"/>
-                </if>
-            </dc:source>
-        </if>
+        <dc:source xsi:type="ddb:noScheme">
+            <call-template name="sourceCitation">
+                <with-param name="documentType" select="//mets:mets/mets:structMap[@TYPE='LOGICAL']/mets:div/@TYPE"/>
+                <with-param name="isbn" select="$isbn"/>
+                <with-param name="issn" select="mods:identifier[@type='issn'][1]"/>
+                <with-param name="issue" select="mods:part[@type='issue']/mods:detail/mods:number"/>
+                <with-param name="pagesEnd" select="../mods:part[@type='section']/mods:extent[@unit='pages']/mods:end"/>
+                <with-param name="pagesStart" select="../mods:part[@type='section']/mods:extent[@unit='pages']/mods:start"/>
+                <with-param name="publisher" select="mods:originInfo/mods:publisher"/>
+                <with-param name="publisherPlace" select="mods:originInfo/mods:place/mods:placeTerm"/>
+                <with-param name="subTitle" select="mods:titleInfo/mods:subTitle[1]"/>
+                <with-param name="title" select="mods:titleInfo/mods:title[1]"/>
+                <with-param name="volume" select="mods:part[@type='volume']/mods:detail/mods:number"/>
+                <with-param name="year" select="mods:originInfo/mods:dateIssued"/>
+            </call-template>
+        </dc:source>
+
         <if test="string-length($isbn)>0">
             <dc:source xsi:type="ddb:ISBN">
                 <value-of select="$isbn"/>
             </dc:source>
         </if>
+
+        <variable name="urn" select="mods:identifier[@type='urn'][1]"/>
         <if test="string-length($urn)>0">
             <dc:source xsi:type="dcterms:URI">
                 <value-of select="concat('http://nbn-resolving.de/', $urn)"/>
             </dc:source>
         </if>
+    </template>
+
+    <template match="mods:relatedItem[@type='original']" mode="dcterms:isPartOf">
+        <dcterms:isPartOf type="ddb:noScheme">
+            <call-template name="sourceCitation">
+                <with-param name="documentType" select="//mets:mets/mets:structMap[@TYPE='LOGICAL']/mets:div/@TYPE"/>
+                <with-param name="isbn" select="mods:identifier[@type='isbn'][1]"/>
+                <with-param name="issn" select="mods:identifier[@type='issn'][1]"/>
+                <with-param name="issue" select="mods:part[@type='issue']/mods:detail/mods:number"/>
+                <with-param name="pagesEnd" select="../mods:part[@type='section']/mods:extent[@unit='pages']/mods:end"/>
+                <with-param name="pagesStart" select="../mods:part[@type='section']/mods:extent[@unit='pages']/mods:start"/>
+                <with-param name="publisher" select="mods:originInfo/mods:publisher"/>
+                <with-param name="publisherPlace" select="mods:originInfo/mods:place/mods:placeTerm"/>
+                <with-param name="subTitle" select="mods:titleInfo/mods:subTitle[1]"/>
+                <with-param name="title" select="mods:titleInfo/mods:title[1]"/>
+                <with-param name="volume" select="mods:part[@type='volume']/mods:detail/mods:number"/>
+                <with-param name="year" select="mods:originInfo/mods:dateIssued"/>
+            </call-template>
+        </dcterms:isPartOf>
     </template>
 
     <template match="mods:relatedItem[@type='original']/mods:note[@type='z']">
@@ -639,6 +654,67 @@
                 </for-each>
             </cc:department>
         </if>
+    </template>
+
+    <template name="sourceCitation">
+        <param name="documentType"/>
+        <param name="isbn"/>
+        <param name="issn"/>
+        <param name="issue"/>
+        <param name="pagesEnd"/>
+        <param name="pagesStart"/>
+        <param name="publisher"/>
+        <param name="publisherPlace"/>
+        <param name="subTitle"/>
+        <param name="title"/>
+        <param name="volume"/>
+        <param name="year"/>
+
+        <choose>
+            <when test="$documentType='article'">
+                <variable name="volume-issue">
+                    <if test="string-length($volume)>0">
+                        <value-of select="$volume"/>
+                    </if>
+                    <if test="string-length($issue)>0">
+                        <value-of select="concat('(', $issue, ')')"/>
+                    </if>
+                </variable>
+                <variable name="pages">
+                    <if test="string-length($pagesStart)>0">
+                        <value-of select="concat('S. ', string-join(($pagesStart, $pagesEnd)[.!=''], '-'))"/>
+                    </if>
+                </variable>
+                <variable name="volume-issue-pages" select="string-join(($volume-issue, $pages)[.!=''], ',')"/>
+                <variable name="_issn">
+                    <if test="string-length($issn)">
+                        <value-of select="concat('ISSN: ', $issn)"/>
+                    </if>
+                </variable>
+                <value-of select="string-join(($title, $volume-issue-pages, $_issn)[.!=''], '. ')"/>
+            </when>
+
+            <when test="matches($documentType, 'in_proceeding|contained_work|in_book')">
+                <variable name="title-subtitle" select="string-join(($title, $subTitle)[.!=''], ' : ')"/>
+                <variable name="place-publisher" select="string-join(($publisherPlace, $publisher)[.!=''], ' : ')"/>
+                <variable name="place-publisher-year" select="string-join(($place-publisher, $year)[.!=''], ', ')"/>
+                <variable name="pages">
+                    <if test="string-length($pagesStart)>0">
+                        <value-of select="concat('S. ', string-join(($pagesStart, $pagesEnd)[.!=''], '-'))"/>
+                    </if>
+                </variable>
+                <variable name="_isbn">
+                    <if test="string-length($isbn)">
+                        <value-of select="concat('ISBN: ', $isbn)"/>
+                    </if>
+                </variable>
+                <value-of select="string-join(($title-subtitle, $place-publisher-year, $pages, $_isbn)[.!=''], '. ')"/>
+            </when>
+
+            <otherwise>
+                <value-of select="string-join(($title, $publisher, $year)[.!=''], '. ')"/>
+            </otherwise>
+        </choose>
     </template>
 
     <!--
