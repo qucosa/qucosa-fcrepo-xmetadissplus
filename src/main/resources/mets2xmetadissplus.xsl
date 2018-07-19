@@ -416,11 +416,11 @@
 
     <template match="mods:relatedItem[@type='original']">
         <variable name="title" select="mods:titleInfo[1]/mods:title[1]"/>
-        <variable name="issn" select="mods:identifier[@type='issn'][1]"/>
+        <variable name="isbn" select="mods:identifier[@type='isbn'][1]"/>
         <variable name="urn" select="mods:identifier[@type='urn'][1]"/>       
 
         <if test="string-length($title)>0">
-            <dcterms:isPartOf xsi:type="ddb:noScheme">
+            <dc:source xsi:type="ddb:noScheme">
                 <value-of select="$title"/>
                 <variable name="volume" select="mods:part[@type='volume']/mods:detail/mods:number"/>
                 <variable name="issue" select="mods:part[@type='issue']/mods:detail/mods:number"/>
@@ -436,23 +436,23 @@
                 <if test="string-length($end)>0">
                     <value-of select="concat('-', $end)"/>
                 </if>
-                <if test="string-length($issn)>0">
-                    <value-of select="concat(', ISSN: ', $issn)"/>
+                <if test="string-length($isbn)>0">
+                    <value-of select="concat(', ISBN: ', $isbn)"/>
                 </if>
                 <if test="string-length($urn)>0">
                     <value-of select="concat(', URN: ', $urn)"/>
                 </if>
-            </dcterms:isPartOf>
+            </dc:source>
         </if>
-        <if test="string-length($issn)>0">
-            <dcterms:isPartOf xsi:type="ddb:ISSN">
-                <value-of select="$issn"/>
-            </dcterms:isPartOf>
+        <if test="string-length($isbn)>0">
+            <dc:source xsi:type="ddb:ISBN">
+                <value-of select="$isbn"/>
+            </dc:source>
         </if>
         <if test="string-length($urn)>0">
-            <dcterms:isPartOf xsi:type="dcterms:URI">
+            <dc:source xsi:type="dcterms:URI">
                 <value-of select="concat('http://nbn-resolving.de/', $urn)"/>
-            </dcterms:isPartOf>
+            </dc:source>
         </if>
     </template>
 
