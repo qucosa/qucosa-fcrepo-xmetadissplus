@@ -152,7 +152,7 @@
 
         <!-- ddb:fileNumber -->
         <ddb:fileNumber>
-            <value-of select="count(//mets:fileSec//mets:file)"/>
+            <value-of select="count(//mets:fileSec/mets:fileGrp[@USE='DOWNLOAD']/mets:file[@USE='ARCHIVE'])"/>
         </ddb:fileNumber>
 
         <!-- Skip: ddb:fileProperties -->
