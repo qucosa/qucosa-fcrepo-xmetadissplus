@@ -133,6 +133,7 @@
 
         <!-- dcterms:isPartOf -->
         <apply-templates select="mods:relatedItem[@type='host']//mods:identifier[@type='zdb']"/>
+        <apply-templates select="mods:relatedItem[@type='host']/mods:relatedItem[@type='host']/mods:identifier[@type='qucosa:urn']"/>
 
         <!-- Duplicate elements of dc:source for WinIBW xMetaDissPlus2Pica script. -->
         <apply-templates select="mods:relatedItem[@type='original']" mode="dcterms:isPartOf"/>
@@ -508,6 +509,14 @@
             <value-of select="."/>
         </dcterms:isPartOf>
     </template>
+
+    <template match="mods:relatedItem[@type='host']/mods:relatedItem[@type='host']/mods:identifier[@type='qucosa:urn']">
+        <dcterms:isPartOf xsi:type="ddb:ZSTitelID">
+            <value-of select="."/>
+        </dcterms:isPartOf>
+    </template>
+
+
 
     <template match="mods:language/mods:languageTerm[@authority='iso639-2b' and @type='code']">
         <dc:language xsi:type="dcterms:ISO639-2">
