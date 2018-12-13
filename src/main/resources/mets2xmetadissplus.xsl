@@ -116,7 +116,6 @@
         <!-- dc:source -->
         <apply-templates select="mods:identifier[@type='isbn']" mode="dc:source"/>
         <apply-templates select="mods:relatedItem[@type='otherFormat']"/>
-        <apply-templates select="mods:relatedItem[@type='original']" mode="dc:source"/>
         <apply-templates select="mods:relatedItem[@type='original']/mods:note[@type='z']"/>
 
         <!-- dc:language -->
