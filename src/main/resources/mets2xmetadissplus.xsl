@@ -116,7 +116,6 @@
         <!-- dc:source -->
         <apply-templates select="mods:identifier[@type='isbn']" mode="dc:source"/>
         <apply-templates select="mods:relatedItem[@type='otherFormat']"/>
-        <apply-templates select="mods:relatedItem[@type='original']" mode="dc:source"/>
         <apply-templates select="mods:relatedItem[@type='original']/mods:note[@type='z']"/>
 
         <!-- dc:language -->
@@ -132,6 +131,8 @@
         <!-- SKIP dc:requires -->
 
         <!-- dcterms:isPartOf -->
+        <apply-templates select="mods:relatedItem[@type='host']//mods:identifier[@type='zdb']"/>
+        <apply-templates select="mods:relatedItem[@type='host']/mods:relatedItem[@type='host']/mods:identifier[@type='qucosa:urn']"/>
 
         <!-- Duplicate elements of dc:source for WinIBW xMetaDissPlus2Pica script. -->
         <apply-templates select="mods:relatedItem[@type='original']" mode="dcterms:isPartOf"/>
@@ -453,7 +454,7 @@
     </template>
 
     <template match="mods:relatedItem[@type='original']" mode="dcterms:isPartOf">
-        <dcterms:isPartOf type="ddb:noScheme">
+        <dcterms:isPartOf xsi:type="ddb:noScheme">
             <call-template name="sourceCitation">
                 <with-param name="documentType" select="//mets:mets/mets:structMap[@TYPE='LOGICAL']/mets:div/@TYPE"/>
                 <with-param name="isbn" select="mods:identifier[@type='isbn'][1]"/>
@@ -501,6 +502,20 @@
             </dcterms:isPartOf>
         </if>
     </template>
+
+    <template match="mods:relatedItem[@type='host']//mods:identifier[@type='zdb']">
+        <dcterms:isPartOf xsi:type="ddb:ZSTitelID">
+            <value-of select="."/>
+        </dcterms:isPartOf>
+    </template>
+
+    <template match="mods:relatedItem[@type='host']/mods:relatedItem[@type='host']/mods:identifier[@type='qucosa:urn']">
+        <dcterms:isPartOf xsi:type="ddb:ZSTitelID">
+            <value-of select="."/>
+        </dcterms:isPartOf>
+    </template>
+
+
 
     <template match="mods:language/mods:languageTerm[@authority='iso639-2b' and @type='code']">
         <dc:language xsi:type="dcterms:ISO639-2">
