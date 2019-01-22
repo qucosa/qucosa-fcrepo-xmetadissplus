@@ -131,6 +131,8 @@
         <!-- SKIP dc:requires -->
 
         <!-- dcterms:isPartOf -->
+        <apply-templates select="mods:part[@type='issue']/mods:detail/mods:number" mode="ZS-Ausgabe"/>
+        <apply-templates select="mods:relatedItem[@type='original']" mode="ZS-Ausgabe"/>
         <apply-templates select="mods:relatedItem[@type='host']//mods:identifier[@type='zdb']"/>
         <apply-templates select="mods:relatedItem[@type='host']/mods:relatedItem[@type='host']/mods:identifier[@type='qucosa:urn']"/>
 
@@ -469,6 +471,30 @@
                 <with-param name="volume" select="mods:part[@type='volume']/mods:detail/mods:number"/>
                 <with-param name="year" select="mods:originInfo/mods:dateIssued"/>
             </call-template>
+        </dcterms:isPartOf>
+    </template>
+
+    <template match="mods:relatedItem[@type='original']" mode="ZS-Ausgabe">
+        <choose>
+            <when test="mods:note[@type='z']">
+                <dcterms:isPartOf xsi:type="ddb:ZS-Ausgabe">
+                    <value-of select="mods:note[@type='z']"/>
+                </dcterms:isPartOf>
+            </when>
+            <when test="mods:part[@type='issue'] and mods:originInfo/mods:dateIssued">
+                <dcterms:isPartOf xsi:type="ddb:ZS-Ausgabe">
+                    <variable name="volume" select="mods:part[@type='volume']"/>
+                    <variable name="year" select="mods:originInfo/mods:dateIssued"/>
+                    <variable name="issue" select="mods:part[@type='issue']"/>
+                    <value-of select="string-join(($volume, $year, $issue)[.!=''], ',')"/>
+                </dcterms:isPartOf>
+            </when>
+        </choose>
+    </template>
+
+    <template match="mods:part[@type='issue']/mods:detail/mods:number" mode="ZS-Ausgabe">
+        <dcterms:isPartOf xsi:type="ddb:ZS-Ausgabe">
+            <value-of select="."/>
         </dcterms:isPartOf>
     </template>
 
