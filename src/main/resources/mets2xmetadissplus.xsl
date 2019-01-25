@@ -16,6 +16,7 @@
 
 <stylesheet xmlns:dc="http://purl.org/dc/elements/1.1/"
             xmlns="http://www.w3.org/1999/XSL/Transform"
+            xmlns:xslt="http://www.w3.org/1999/XSL/Transform"
             xmlns:ddb="http://www.d-nb.de/standards/ddb/"
             xmlns:pc="http://www.d-nb.de/standards/pc/"
             xmlns:mets="http://www.loc.gov/METS/"
@@ -223,6 +224,11 @@
                         <value-of select="mods:namePart[@type='family']"/>
                     </pc:surName>
                 </pc:name>
+                <xslt:if test="mods:namePart[@type='termsOfAddress']">
+                    <pc:academicTitle>
+                        <value-of select="mods:namePart[@type='termsOfAddress']"/>
+                    </pc:academicTitle>
+                </xslt:if>
             </pc:person>
         </dc:creator>
     </template>
@@ -241,6 +247,11 @@
                                 <value-of select="../../mods:namePart[@type='family']"/>
                             </pc:surName>
                         </pc:name>
+                        <xslt:if test="../../mods:namePart[@type='termsOfAddress']">
+                            <pc:academicTitle>
+                                <value-of select="../../mods:namePart[@type='termsOfAddress']"/>
+                            </pc:academicTitle>
+                        </xslt:if>
                     </pc:person>
                 </dc:contributor>
             </if>
