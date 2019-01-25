@@ -126,7 +126,10 @@
         <!-- SKIP dc:isVersionOf -->
         <!-- SKIP dc:hasVersion -->
         <!-- SKIP dc:isReplacedBy -->
-        <!-- SKIP dc:replaces -->
+
+        <!-- dcterms:replaces -->
+        <apply-templates select="mods:relatedItem[@type='preceding']"/>
+
         <!-- SKIP dc:isRequiredBy -->
         <!-- SKIP dc:requires -->
 
@@ -419,6 +422,30 @@
         <dc:source xsi:type="ddb:ISBN">
             <value-of select="."/>
         </dc:source>
+    </template>
+
+    <template match="mods:relatedItem[@type='preceding']/mods:location/mods:url">
+        <dcterms:replaces xsi:type="dcterms:URI">
+            <value-of select="."/>
+        </dcterms:replaces>
+    </template>
+
+    <template match="mods:relatedItem[@type='preceding']/mods:identifier[@type='isbn']">
+        <dcterms:replaces xsi:type="ddb:ISBN">
+            <value-of select="."/>
+        </dcterms:replaces>
+    </template>
+
+    <template match="mods:relatedItem[@type='preceding']/mods:identifier[contains('urn', @type)]">
+        <dcterms:replaces xsi:type="dcterms:URI">
+            <value-of select="concat('https//nbn-resolving.de/',text())"/>
+        </dcterms:replaces>
+    </template>
+
+    <template match="mods:relatedItem[@type='preceding']/mods:note">
+        <dcterms:replaces xsi:type="ddb:noScheme">
+            <value-of select="."/>
+        </dcterms:replaces>
     </template>
 
     <template match="mods:relatedItem[@type='original' and mods:titleInfo/mods:title]" mode="dc:source">
