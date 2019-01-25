@@ -125,8 +125,13 @@
         <apply-templates select="//slub:info" mode="dc:relation"/>
         <!-- SKIP dc:isVersionOf -->
         <!-- SKIP dc:hasVersion -->
-        <!-- SKIP dc:isReplacedBy -->
-        <!-- SKIP dc:replaces -->
+
+        <!-- dcterms:isReplacedBy -->
+        <apply-templates select="mods:relatedItem[@type='succeeding']"/>
+
+        <!-- dcterms:replaces -->
+        <apply-templates select="mods:relatedItem[@type='preceding']"/>
+
         <!-- SKIP dc:isRequiredBy -->
         <!-- SKIP dc:requires -->
 
@@ -419,6 +424,54 @@
         <dc:source xsi:type="ddb:ISBN">
             <value-of select="."/>
         </dc:source>
+    </template>
+
+    <template match="mods:relatedItem[@type='preceding']/mods:location/mods:url">
+        <dcterms:replaces xsi:type="dcterms:URI">
+            <value-of select="."/>
+        </dcterms:replaces>
+    </template>
+
+    <template match="mods:relatedItem[@type='preceding']/mods:identifier[@type='isbn']">
+        <dcterms:replaces xsi:type="ddb:ISBN">
+            <value-of select="."/>
+        </dcterms:replaces>
+    </template>
+
+    <template match="mods:relatedItem[@type='preceding']/mods:identifier[contains('urn', @type)]">
+        <dcterms:replaces xsi:type="dcterms:URI">
+            <value-of select="concat('https//nbn-resolving.de/',text())"/>
+        </dcterms:replaces>
+    </template>
+
+    <template match="mods:relatedItem[@type='preceding']/mods:note">
+        <dcterms:replaces xsi:type="ddb:noScheme">
+            <value-of select="."/>
+        </dcterms:replaces>
+    </template>
+
+    <template match="mods:relatedItem[@type='succeeding']/mods:location/mods:url">
+        <dcterms:isReplacedBy xsi:type="dcterms:URI">
+            <value-of select="."/>
+        </dcterms:isReplacedBy>
+    </template>
+
+    <template match="mods:relatedItem[@type='succeeding']/mods:identifier[@type='isbn']">
+        <dcterms:isReplacedBy xsi:type="ddb:ISBN">
+            <value-of select="."/>
+        </dcterms:isReplacedBy>
+    </template>
+
+    <template match="mods:relatedItem[@type='succeeding']/mods:identifier[contains('urn', @type)]">
+        <dcterms:isReplacedBy xsi:type="dcterms:URI">
+            <value-of select="concat('https//nbn-resolving.de/',text())"/>
+        </dcterms:isReplacedBy>
+    </template>
+
+    <template match="mods:relatedItem[@type='succeeding']/mods:note">
+        <dcterms:isReplacedBy xsi:type="ddb:noScheme">
+            <value-of select="."/>
+        </dcterms:isReplacedBy>
     </template>
 
     <template match="mods:relatedItem[@type='original' and mods:titleInfo/mods:title]" mode="dc:source">
