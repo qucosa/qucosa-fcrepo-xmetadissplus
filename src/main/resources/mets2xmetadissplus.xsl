@@ -52,6 +52,9 @@
     <!-- Transfer URL parameter, passed from dissemination servlet -->
     <param name="transfer_url"/>
 
+    <!-- Variable containing the document type -->
+    <variable name="document_type" select="//mets:mets/mets:structMap[@TYPE='LOGICAL']/mets:div/@TYPE"/>
+
     <!-- Main control templates -->
 
     <template match="/mets:mets">
@@ -139,13 +142,12 @@
         <!-- dcterms:isPartOf -->
         <apply-templates select="mods:part[@type='issue']/mods:detail/mods:number" mode="ZS-Ausgabe"/>
         <apply-templates select="mods:relatedItem[@type='original']" mode="ZS-Ausgabe"/>
-        <apply-templates select="mods:relatedItem[@type='host']//mods:identifier[@type='zdb']"/>
-        <apply-templates select="mods:relatedItem[@type='host']/mods:relatedItem[@type='host']/mods:identifier[@type='qucosa:urn']"/>
-
-        <!-- Duplicate elements of dc:source for WinIBW xMetaDissPlus2Pica script. -->
-        <apply-templates select="mods:relatedItem[@type='original']" mode="dcterms:isPartOf"/>
-
-        <apply-templates select="mods:relatedItem[@type='host' or @type='series']"/>
+        <apply-templates select="mods:relatedItem[@type='host']/mods:identifier[contains(@type, 'urn') or @type='issn']" mode="ZS-TitelID"/>
+        <apply-templates select="mods:relatedItem[@type='host']//mods:identifier[@type='zdb']" mode="dcterms:isPartOf"/>
+        <apply-templates select="mods:relatedItem[@type='host']/mods:relatedItem[@type='host']/mods:identifier[contains(@type, 'urn')]" mode="dcterms:isPartOf"/>
+        <apply-templates select="mods:relatedItem[@type='series']/mods:titleInfo[1]/mods:title[1]" mode="dcterms:isPartOf"/>
+        <apply-templates select="mods:relatedItem[@type='series']/mods:identifier[@type='issn']" mode="dcterms:isPartOf"/>
+        <apply-templates select="mods:relatedItem[@type='series']/mods:identifier[@type='urn']" mode="dcterms:isPartOf"/>
 
         <!-- SKIP dc:coverage -->
 
@@ -490,7 +492,7 @@
 
         <dc:source xsi:type="ddb:noScheme">
             <call-template name="sourceCitation">
-                <with-param name="documentType" select="//mets:mets/mets:structMap[@TYPE='LOGICAL']/mets:div/@TYPE"/>
+                <with-param name="documentType" select="$document_type"/>
                 <with-param name="isbn" select="$isbn"/>
                 <with-param name="issn" select="mods:identifier[@type='issn'][1]"/>
                 <with-param name="issue" select="mods:part[@type='issue']/mods:detail/mods:number"/>
@@ -568,44 +570,48 @@
         </dc:source>
     </template>
 
-    <template match="mods:relatedItem[@type='host' or @type='series']">
-        <variable name="title" select="mods:titleInfo[1]/mods:title[1]"/>
-        <if test="string-length($title)>0">
-            <dcterms:isPartOf xsi:type="ddb:noScheme">
-                <value-of select="$title"/>
-                <variable name="volume" select="../mods:part[@type='volume'][1]/mods:detail/mods:number"/>
-                <if test="string-length($volume)>0">
-                    <value-of select="concat(' ; ', $volume)"/>
-                </if>
-            </dcterms:isPartOf>
-        </if>
-        <variable name="issn" select="mods:identifier[@type='issn']"/>
-        <if test="string-length($issn)>0">
-            <dcterms:isPartOf xsi:type="ddb:ISSN">
-                <value-of select="$issn"/>
-            </dcterms:isPartOf>
-        </if>
-        <variable name="urn" select="mods:identifier[@type='urn']"/>
-        <if test="string-length($urn)>0">
-            <dcterms:isPartOf xsi:type="dcterms:URI">
-                <value-of select="concat('http://nbn-resolving.de/', $urn)"/>
+    <template match="mods:relatedItem[@type='series']/mods:titleInfo[1]/mods:title[1]" mode="dcterms:isPartOf">
+        <dcterms:isPartOf xsi:type="ddb:noScheme">
+            <value-of select="."/>
+            <variable name="volume" select="../../../mods:part[@type='volume'][1]/mods:detail/mods:number"/>
+            <if test="string-length($volume)>0">
+                <value-of select="concat(' ; ', $volume)"/>
+            </if>
+        </dcterms:isPartOf>
+    </template>
+
+    <template match="mods:relatedItem[@type='series']/mods:identifier[@type='issn']" mode="dcterms:isPartOf">
+        <dcterms:isPartOf xsi:type="ddb:ISSN">
+            <value-of select="."/>
+        </dcterms:isPartOf>
+    </template>
+
+    <template match="mods:relatedItem[@type='series']/mods:identifier[@type='urn']" mode="dcterms:isPartOf">
+        <dcterms:isPartOf xsi:type="dcterms:URI">
+            <value-of select="concat('http://nbn-resolving.de/', .)"/>
+        </dcterms:isPartOf>
+    </template>
+
+    <template match="mods:relatedItem[@type='host']/mods:identifier[contains(@type, 'urn') or @type='issn']" mode="ZS-TitelID">
+        <if test="$document_type='issue'">
+            <dcterms:isPartOf xsi:type="ddb:ZSTitelID">
+                <value-of select="."/>
             </dcterms:isPartOf>
         </if>
     </template>
 
-    <template match="mods:relatedItem[@type='host']//mods:identifier[@type='zdb']">
+
+    <template match="mods:relatedItem[@type='host']//mods:identifier[@type='zdb']" mode="dcterms:isPartOf">
         <dcterms:isPartOf xsi:type="ddb:ZSTitelID">
             <value-of select="."/>
         </dcterms:isPartOf>
     </template>
 
-    <template match="mods:relatedItem[@type='host']/mods:relatedItem[@type='host']/mods:identifier[@type='qucosa:urn']">
+    <template match="mods:relatedItem[@type='host']/mods:relatedItem[@type='host']/mods:identifier[contains(@type, 'urn')]" mode="dcterms:isPartOf">
         <dcterms:isPartOf xsi:type="ddb:ZSTitelID">
             <value-of select="."/>
         </dcterms:isPartOf>
     </template>
-
-
 
     <template match="mods:language/mods:languageTerm[@authority='iso639-2b' and @type='code']">
         <dc:language xsi:type="dcterms:ISO639-2">
