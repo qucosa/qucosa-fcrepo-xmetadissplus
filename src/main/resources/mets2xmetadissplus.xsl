@@ -600,9 +600,8 @@
         </if>
     </template>
 
-
     <template match="mods:relatedItem[@type='host']//mods:identifier[@type='zdb']" mode="dcterms:isPartOf">
-        <dcterms:isPartOf xsi:type="ddb:ZSTitelID">
+        <dcterms:isPartOf xsi:type="ddb:Erstkat-ID">
             <value-of select="."/>
         </dcterms:isPartOf>
     </template>
