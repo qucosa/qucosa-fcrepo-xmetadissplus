@@ -58,7 +58,7 @@
     <!-- Main control templates -->
 
     <template match="/mets:mets">
-        <xMetaDiss:xMetaDiss>
+        <xMetaDiss:xMetaDiss xsi:schemaLocation="http://www.d-nb.de/standards/xmetadissplus/ http://files.dnb.de/standards/xmetadissplus/xmetadissplus.xsd">
             <apply-templates select="mets:dmdSec[@ID='DMD_000']/mets:mdWrap[@MDTYPE='MODS']/mets:xmlData/mods:mods"/>
         </xMetaDiss:xMetaDiss>
     </template>
