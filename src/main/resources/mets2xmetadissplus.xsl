@@ -120,6 +120,7 @@
         <!-- dc:source -->
         <apply-templates select="mods:identifier[@type='isbn']" mode="dc:source"/>
         <apply-templates select="mods:relatedItem[@type='otherFormat']"/>
+        <apply-templates select="mods:relatedItem[@type='original']" mode="dc:source"/>
         <apply-templates select="mods:relatedItem[@type='original']/mods:note[@type='z']"/>
 
         <!-- dc:language -->
@@ -519,25 +520,6 @@
                 <value-of select="concat('http://nbn-resolving.de/', $urn)"/>
             </dc:source>
         </if>
-    </template>
-
-    <template match="mods:relatedItem[@type='original']" mode="dcterms:isPartOf">
-        <dcterms:isPartOf xsi:type="ddb:noScheme">
-            <call-template name="sourceCitation">
-                <with-param name="documentType" select="//mets:mets/mets:structMap[@TYPE='LOGICAL']/mets:div/@TYPE"/>
-                <with-param name="isbn" select="mods:identifier[@type='isbn'][1]"/>
-                <with-param name="issn" select="mods:identifier[@type='issn'][1]"/>
-                <with-param name="issue" select="mods:part[@type='issue']/mods:detail/mods:number"/>
-                <with-param name="pagesEnd" select="../mods:part[@type='section']/mods:extent[@unit='pages']/mods:end"/>
-                <with-param name="pagesStart" select="../mods:part[@type='section']/mods:extent[@unit='pages']/mods:start"/>
-                <with-param name="publisher" select="mods:originInfo/mods:publisher"/>
-                <with-param name="publisherPlace" select="mods:originInfo/mods:place/mods:placeTerm"/>
-                <with-param name="subTitle" select="mods:titleInfo/mods:subTitle[1]"/>
-                <with-param name="title" select="mods:titleInfo/mods:title[1]"/>
-                <with-param name="volume" select="mods:part[@type='volume']/mods:detail/mods:number"/>
-                <with-param name="year" select="mods:originInfo/mods:dateIssued"/>
-            </call-template>
-        </dcterms:isPartOf>
     </template>
 
     <template match="mods:relatedItem[@type='original']" mode="ZS-Ausgabe">
