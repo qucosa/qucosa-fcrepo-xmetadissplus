@@ -610,7 +610,7 @@
         <variable name="ddbtype">
             <choose>
                 <when test="@type='swb-ppn'">Erstkat-ID</when>
-                <when test="@type='urn'">URN</when>
+                <when test="contains(@type, 'urn')">URN</when>
                 <otherwise/>
             </choose>
         </variable>
