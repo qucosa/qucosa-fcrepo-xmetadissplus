@@ -60,6 +60,10 @@
     <template match="/mets:mets">
         <xMetaDiss:xMetaDiss xsi:schemaLocation="http://www.d-nb.de/standards/xmetadissplus/ http://files.dnb.de/standards/xmetadissplus/xmetadissplus.xsd">
             <apply-templates select="mets:dmdSec[@ID='DMD_000']/mets:mdWrap[@MDTYPE='MODS']/mets:xmlData/mods:mods"/>
+
+            <!-- ddb:rights -->
+            <call-template name="ddb:rights"/>
+
         </xMetaDiss:xMetaDiss>
     </template>
 
@@ -178,9 +182,6 @@
         <!-- ddb:identifier -->
         <apply-templates select="mods:identifier" mode="ddb:identifier"/>
         <apply-templates select="/mets:mets/mets:amdSec//slub:info/slub:vgwortOpenKey" mode="ddb:identifier"/>
-
-        <!-- ddb:rights -->
-        <ddb:rights ddb:kind="free"/>
 
     </template>
 
@@ -748,6 +749,19 @@
                 </for-each>
             </cc:department>
         </if>
+    </template>
+
+    <!-- Named templates -->
+
+    <template name="ddb:rights">
+        <choose>
+            <when test="//slub:info/slub:collections[slub:collection='nonOA']">
+                <ddb:rights ddb:kind="domain"/>
+            </when>
+            <otherwise>
+                <ddb:rights ddb:kind="free"/>
+            </otherwise>
+        </choose>
     </template>
 
     <template name="sourceCitation">
