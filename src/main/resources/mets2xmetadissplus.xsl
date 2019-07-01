@@ -45,7 +45,7 @@
                                     http://www.d-nb.de/standards/xmetadissplus/type/ http://files.dnb.de/standards/xmetadissplus/xmetadissplustype.xsd
                                     http://www.d-nb.de/standards/urn/ http://files.dnb.de/standards/xmetadiss/urn.xsd">
 
-    <output standalone="yes" encoding="utf-8" media-type="application/xml" indent="yes" method="xml"/>
+    <output encoding="utf-8" media-type="application/xml" indent="yes" method="xml"/>
 
     <strip-space elements="*"/>
 
