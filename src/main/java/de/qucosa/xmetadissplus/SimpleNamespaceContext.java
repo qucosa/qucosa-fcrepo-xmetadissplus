@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class SimpleNamespaceContext implements NamespaceContext {
+class SimpleNamespaceContext implements NamespaceContext {
 
     private final Map<String, String> PREF_MAP = new HashMap<>();
 

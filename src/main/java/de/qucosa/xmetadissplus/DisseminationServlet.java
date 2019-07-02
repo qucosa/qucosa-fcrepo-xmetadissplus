@@ -16,11 +16,11 @@
 
 package de.qucosa.xmetadissplus;
 
-import org.apache.commons.lang3.text.StrSubstitutor;
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 import org.apache.commons.pool2.impl.GenericObjectPool;
+import org.apache.commons.text.StringSubstitutor;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -155,7 +155,7 @@ public class DisseminationServlet extends HttpServlet {
                     valuesMap.put("AGENT", agentName);
                     valuesMap.put("PID", pid);
 
-                    StrSubstitutor substitutor = new StrSubstitutor(valuesMap, "##", "##");
+                    StringSubstitutor substitutor = new StringSubstitutor(valuesMap, "##", "##");
                     final String transferUrl = substitutor.replace(transferUrlPattern);
 
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -229,11 +229,7 @@ public class DisseminationServlet extends HttpServlet {
         String agentNameElement = XPATH_AGENT.evaluate(metsDocument);
         if (agentNameElement != null) {
             String agentName = agentNameElement.trim();
-            if (agentNameSubstitutions.containsKey(agentName)) {
-                return agentNameSubstitutions.get(agentName);
-            } else {
-                return agentName;
-            }
+            return agentNameSubstitutions.getOrDefault(agentName, agentName);
         }
         return null;
     }
