@@ -901,7 +901,7 @@
     <function name="myfunc:nodesMatch" as="xs:boolean">
         <param name="nodes"/>
         <param name="pattern" as="xs:string"/>
-        <value-of select="matches(string-join($nodes, ' '), $pattern)"/>
+        <sequence select="matches(string-join($nodes, ' '), $pattern)"/>
     </function>
 
 </stylesheet>
