@@ -136,10 +136,14 @@
         <!-- SKIP dc:hasVersion -->
 
         <!-- dcterms:isReplacedBy -->
-        <apply-templates select="mods:relatedItem[@type='succeeding']"/>
+        <apply-templates select="mods:relatedItem[@type='succeeding']/mods:location/mods:url"/>
+        <apply-templates select="mods:relatedItem[@type='succeeding']/mods:identifier"/>
+        <apply-templates select="mods:relatedItem[@type='succeeding']/mods:note"/>
 
         <!-- dcterms:replaces -->
-        <apply-templates select="mods:relatedItem[@type='preceding']"/>
+        <apply-templates select="mods:relatedItem[@type='preceding']/mods:location/mods:url"/>
+        <apply-templates select="mods:relatedItem[@type='preceding']/mods:identifier"/>
+        <apply-templates select="mods:relatedItem[@type='preceding']/mods:note"/>
 
         <!-- SKIP dc:isRequiredBy -->
         <!-- SKIP dc:requires -->
