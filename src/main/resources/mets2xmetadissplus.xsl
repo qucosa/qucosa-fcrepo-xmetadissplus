@@ -188,7 +188,10 @@
     <!-- individual METS/MODS element templates -->
 
     <template match="mods:titleInfo/mods:title">
-        <dc:title xsi:type="ddb:titleISO639-2" lang="{../@lang}">
+        <dc:title xsi:type="ddb:titleISO639-2">
+            <if test="../@lang">
+                <attribute name="lang" select="../@lang"/>
+            </if>
             <value-of select="."/>
         </dc:title>
     </template>
