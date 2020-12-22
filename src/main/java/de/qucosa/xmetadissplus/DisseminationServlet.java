@@ -98,7 +98,7 @@ public class DisseminationServlet extends HttpServlet {
 
         ServletConfig servletConfig = getServletConfig();
 
-        transferUrlPidencode = Boolean.valueOf(
+        transferUrlPidencode = Boolean.parseBoolean(
                 getParameterValue(servletConfig, PARAM_TRANSFER_URL_PIDENCODE,
                         System.getProperty(PARAM_TRANSFER_URL_PIDENCODE, "false")));
 
