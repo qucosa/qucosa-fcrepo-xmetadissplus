@@ -706,9 +706,9 @@
                 <when test="string(@lang)">
                     <value-of select="@lang"/>
                 </when>
-                <!-- If the element has no @lang attribute fallback to mods:languageTerm element -->
+                <!-- If the element has no @lang attribute fallback to first mods:languageTerm element -->
                 <when test="../mods:language/mods:languageTerm[@authority='iso639-2b']">
-                    <value-of select="../mods:language/mods:languageTerm[@authority='iso639-2b']"/>
+                    <value-of select="../mods:language/mods:languageTerm[@authority='iso639-2b'][1]"/>
                 </when>
                 <!-- If there is no language code obtainable, end transformation with error -->
                 <otherwise>
