@@ -125,7 +125,7 @@
         <apply-templates select="mods:identifier[@type='isbn']" mode="dc:source"/>
         <apply-templates select="mods:relatedItem[@type='otherFormat']"/>
         <apply-templates select="mods:relatedItem[@type='original' and mods:titleInfo/mods:title]" mode="dc:source"/>
-        <apply-templates select="mods:relatedItem[@type='original']/mods:note[@type='z']"/>
+        <apply-templates select="mods:relatedItem[@type='host']/mods:note[@type='z']"/>
 
         <!-- dc:language -->
         <apply-templates select="mods:language/mods:languageTerm[@authority='iso639-2b' and @type='code']"/>
@@ -150,7 +150,7 @@
 
         <!-- dcterms:isPartOf -->
         <apply-templates select="mods:part[@type='issue']/mods:detail/mods:number" mode="ZS-Ausgabe"/>
-        <apply-templates select="mods:relatedItem[@type='original']" mode="ZS-Ausgabe"/>
+        <apply-templates select="mods:relatedItem[@type='host']" mode="ZS-Ausgabe"/>
         <apply-templates select="mods:relatedItem[@type='host']/mods:identifier[contains(@type, 'urn') or @type='issn']" mode="ZS-TitelID"/>
         <apply-templates select="mods:relatedItem[@type='host']//mods:identifier[@type='zdb']" mode="dcterms:isPartOf"/>
         <apply-templates select="mods:relatedItem[@type='host']/mods:relatedItem[@type='host']/mods:identifier[contains(@type, 'urn')]" mode="dcterms:isPartOf"/>
@@ -530,7 +530,7 @@
         </if>
     </template>
 
-    <template match="mods:relatedItem[@type='original']" mode="ZS-Ausgabe">
+    <template match="mods:relatedItem[@type='host']" mode="ZS-Ausgabe">
         <choose>
             <when test="mods:note[@type='z']">
                 <dcterms:isPartOf xsi:type="ddb:ZS-Ausgabe">
@@ -554,7 +554,7 @@
         </dcterms:isPartOf>
     </template>
 
-    <template match="mods:relatedItem[@type='original']/mods:note[@type='z']">
+    <template match="mods:relatedItem[@type='host']/mods:note[@type='z']">
         <dc:source xsi:type="ddb:noScheme">
             <value-of select="."/>
         </dc:source>
