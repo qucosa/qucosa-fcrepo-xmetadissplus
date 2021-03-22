@@ -55,6 +55,20 @@
     <!-- Variable containing the document type -->
     <variable name="document_type" select="//mets:mets/mets:structMap[@TYPE='LOGICAL']/mets:div/@TYPE"/>
 
+    <!-- Detected document language -->
+    <variable name="document_lang">
+            <choose>
+                <!-- Select very first mods:languageTerm element -->
+                <when test="//mods:mods/mods:language/mods:languageTerm[@authority='iso639-2b' and @type='code']">
+                    <value-of select="(//mods:mods/mods:language/mods:languageTerm[@authority='iso639-2b' and @type='code'])[1]"/>
+                </when>
+                <!-- If there is no language code obtainable, end transformation with error -->
+                <otherwise>
+                    <message terminate="yes" xml:space="preserve">ERROR: No mods:language/mods:languageTerm element found.</message>
+                </otherwise>
+            </choose>
+    </variable>
+
     <!-- Main control templates -->
 
     <template match="/mets:mets">
@@ -202,10 +216,8 @@
 
     <template match="mods:titleInfo/mods:title" mode="alternative">
         <variable name="titleLanguage" select="../@lang"/>
-        <variable name="documentLanguage"
-                  select="/mets:mets//mods:mods/mods:language/mods:languageTerm[@type='code'][1]"/>
         <dcterms:alternative xsi:type="ddb:titleISO639-2" lang="{$titleLanguage}">
-            <if test="$titleLanguage != $documentLanguage">
+            <if test="$titleLanguage != $document_lang">
                 <attribute name="ddb:type">translated</attribute>
             </if>
             <value-of select="."/>
@@ -214,10 +226,8 @@
 
     <template match="mods:titleInfo/mods:subTitle">
         <variable name="titleLanguage" select="../@lang"/>
-        <variable name="documentLanguage"
-                  select="/mets:mets//mods:mods/mods:language/mods:languageTerm[@type='code'][1]"/>
         <dcterms:alternative xsi:type="ddb:talternativeISO639-2" lang="{$titleLanguage}">
-            <if test="$titleLanguage != $documentLanguage">
+            <if test="$titleLanguage != $document_lang">
                 <attribute name="ddb:type">translated</attribute>
             </if>
             <value-of select="."/>
@@ -706,13 +716,8 @@
                 <when test="string(@lang)">
                     <value-of select="@lang"/>
                 </when>
-                <!-- If the element has no @lang attribute fallback to first mods:languageTerm element -->
-                <when test="../mods:language/mods:languageTerm[@authority='iso639-2b']">
-                    <value-of select="../mods:language/mods:languageTerm[@authority='iso639-2b'][1]"/>
-                </when>
-                <!-- If there is no language code obtainable, end transformation with error -->
                 <otherwise>
-                    <message terminate="yes" xml:space="preserve">ERROR: No @lang attribute in selected element and no mods:language/mods:languageTerm element found.</message>
+                    <value-of select="$document_lang"/>
                 </otherwise>
             </choose>
         </attribute>
