@@ -205,7 +205,7 @@
 
     <!-- individual METS/MODS element templates -->
 
-    <template match="mods:titleInfo/mods:title">
+    <template match="mods:titleInfo[@usage='primary']/mods:title">
         <dc:title xsi:type="ddb:titleISO639-2">
             <if test="../@lang">
                 <attribute name="lang" select="../@lang"/>
